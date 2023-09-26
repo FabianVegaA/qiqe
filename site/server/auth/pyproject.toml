@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "auth"
+version = "0.1.0"
+description = "Auth server"
+authors = ["Fabián <fabianveal@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[tool.poetry.group.format.dependencies]
+black = "^23.9.1"
+isort = "^5.12.0"
+
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.0.291"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
