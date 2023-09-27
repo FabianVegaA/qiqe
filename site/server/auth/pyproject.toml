@@ -4,9 +4,15 @@ version = "0.1.0"
 description = "Auth server"
 authors = ["Fabián <fabianveal@gmail.com>"]
 readme = "README.md"
+packages = [
+    { include = "auth_server", from = "." },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+django = "^4.2.5"
+djangorestframework = "^3.14.0"
+markdown = "^3.4.4"
 
 
 [tool.poetry.group.format.dependencies]
@@ -24,3 +30,6 @@ pytest = "^7.4.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+manage = "manage:main"
