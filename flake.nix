@@ -42,10 +42,18 @@
           auth-server = {
             type = "app";
             program = let
-              script = pkgs.writeShellScriptBin "auth-server" ''
-                cd site/server/auth
-                poetry run manage runserver --noreload
-              '';
+              script = pkgs.writeShellApplication {
+                name = "auth-server";
+                runtimeInputs = [];
+                text = ''
+                  export PGSERVICEFILE="$PWD/data/.pg_service.conf"
+                  export PGPASSFILE="$PWD/data/.pgpass"
+
+                  cd site/server/auth
+                  poetry run manage migrate
+                  poetry run manage runserver --noreload
+                '';
+              };
             in "${script}/bin/auth-server";
           };
 
@@ -70,20 +78,36 @@
             program = let
               script = pkgs.writeShellApplication {
                 name = "createdb";
-                runtimeInputs = [ pkgs.postgresql ];
+                runtimeInputs = [ pkgs.postgresql pkgs.openssl ];
                 text = ''
                   # Create a database of your current user
                   if ! psql -h "$PWD"/data -lqt | cut -d \| -f 1 | grep -qw "$(whoami)"; then
                     createdb -h "$PWD"/data "$(whoami)"
                   fi
 
+                  # Generate a password
+                  PG_PASSWORD=$(openssl rand -base64 32)
+
                   # Load DB dump
+                  cat <<EOF > db.sql
+                  create role authenticator noinherit login password '$PG_PASSWORD';
+                  create role qiqe_user nologin;
+                  create database authenticator owner authenticator;
+                  EOF
+
                   psql -h "$PWD"/data < db.sql
 
-                  # Create configuration file for postgrest
-                  echo "db-uri = \"postgres://authenticator:mysecretpassword@localhost:5432/$(whoami)\"
-                  db-schemas = \"api\"
-                  db-anon-role = \"qiqe_user\"" > data/db.conf
+                  # Create .pgpass
+                  echo "localhost.authenticator.$(whoami).$PG_PASSWORD" > "$PWD"/data/.pgpass && chmod 600 "$PWD"/data/.pgpass
+
+                  # Create .pg_service.conf
+                  cat <<EOF > "$PWD"/data/.pg_service.conf && chmod 600 "$PWD"/data/.pg_service.conf
+                  [authenticator]
+                  host=localhost
+                  user=$(whoami)
+                  dbname=authenticator
+                  port=5432
+                  EOF
                 '';
               };
             in "${script}/bin/createdb";
