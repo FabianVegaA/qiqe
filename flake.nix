@@ -6,17 +6,30 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = nixpkgs.legacyPackages.${system};
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ overlay ];
+        };
 
+        overlay = (final: prev: {
+          qiqe = (final.callPackage ./. { } // {
+            auth-client = final.callPackage ./site/client/auth { };
+          });
+        });
       in {
         packages = {
           default = pkgs.hello;
+
+          # Package the server, made with Django and Python
           auth-server = pkgs.poetry2nix.mkPoetryApplication {
             projectDir = ./site/server/auth;
             overrides = [ pkgs.poetry2nix.defaultPoetryOverrides ];
           };
+
+          auth-client = pkgs.qiqe.auth-client.static;
         };
 
         devShell = pkgs.mkShell {
@@ -28,13 +41,13 @@
               cabal-install
             ];
             pythonPackages = with pkgs; [ poetry ];
-            tsPackages = with pkgs; [ nodejs-16_x ];
+            tsPackages = with pkgs; [ nodejs-16_x node2nix ];
             # elmPackages = with pkgs; [ nodePackages.elm nodePackages.elm-land ];
           in builtins.concatLists [
             nixPackages
             # haskellPackages
             pythonPackages
-            # tsPackages
+            tsPackages
           ];
         };
 
@@ -44,18 +57,36 @@
             program = let
               script = pkgs.writeShellApplication {
                 name = "auth-server";
-                runtimeInputs = [];
+                runtimeInputs = [ pkgs.openssl ];
                 text = ''
                   export PGSERVICEFILE="$PWD/data/.pg_service.conf"
                   export PGPASSFILE="$PWD/data/.pgpass"
 
+                  DJANGO_SUPERUSER_USERNAME="$(whoami)-$(openssl rand -base64 32 | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)"
+                  DJANGO_SUPERUSER_EMAIL="$DJANGO_SUPERUSER_USERNAME@admin.com" # TODO: use a real domain name
+                  DJANGO_SUPERUSER_PASSWORD="$(openssl rand -base64 32)"
+
+                  export DJANGO_SUPERUSER_USERNAME
+                  export DJANGO_SUPERUSER_EMAIL
+                  export DJANGO_SUPERUSER_PASSWORD
+
                   cd site/server/auth
+
+                  cat <<EOF > .env
+                  DJANGO_SUPERUSER_USERNAME=$DJANGO_SUPERUSER_USERNAME
+                  DJANGO_SUPERUSER_EMAIL=$DJANGO_SUPERUSER_EMAIL
+                  DJANGO_SUPERUSER_PASSWORD=$DJANGO_SUPERUSER_PASSWORD
+                  EOF
+
                   poetry run manage migrate
+                  poetry run manage createsuperuser --noinput
                   poetry run manage runserver --noreload
                 '';
               };
             in "${script}/bin/auth-server";
           };
+
+          auth-client = pkgs.qiqe.auth-client.static;
 
           postgres = {
             type = "app";
