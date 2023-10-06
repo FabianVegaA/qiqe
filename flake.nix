@@ -17,39 +17,36 @@
         overlay = (final: prev: {
           qiqe = (final.callPackage ./. { } // {
             auth-client = final.callPackage ./site/client/auth { };
+            auth-server = final.callPackage ./site/server/auth { };
           });
         });
-      in {
+
+        devEnv = pkgs.mkShell {
+          buildInputs = let nixPackages = with pkgs; [ nixfmt ]; in nixPackages;
+        };
+        mergeEnvs = pkgs: envs:
+          pkgs.mkShell (builtins.foldl' (a: v: {
+            buildInputs = a.buildInputs ++ v.buildInputs;
+            nativeBuildInputs = a.nativeBuildInputs ++ v.nativeBuildInputs;
+            propagatedBuildInputs = a.propagatedBuildInputs
+              ++ v.propagatedBuildInputs;
+            propagatedNativeBuildInputs = a.propagatedNativeBuildInputs
+              ++ v.propagatedNativeBuildInputs;
+            shellHook = a.shellHook + "\n" + v.shellHook;
+          }) (devEnv) envs);
+
+      in rec {
         packages = {
-          default = pkgs.hello;
-
-          # Package the server, made with Django and Python
-          auth-server = pkgs.poetry2nix.mkPoetryApplication {
-            projectDir = ./site/server/auth;
-            overrides = [ pkgs.poetry2nix.defaultPoetryOverrides ];
-          };
-
+          auth-server = pkgs.qiqe.auth-server.server;
           auth-client = pkgs.qiqe.auth-client.static;
         };
 
-        devShell = pkgs.mkShell {
-          buildInputs = let
-            nixPackages = with pkgs; [ nixfmt ];
-            haskellPackages = with pkgs.haskellPackages; [
-              haskell-language-server
-              ghcid
-              cabal-install
-            ];
-            pythonPackages = with pkgs; [ poetry ];
-            tsPackages = with pkgs; [ nodejs-16_x node2nix ];
-            # elmPackages = with pkgs; [ nodePackages.elm nodePackages.elm-land ];
-          in builtins.concatLists [
-            nixPackages
-            # haskellPackages
-            pythonPackages
-            tsPackages
-          ];
+        devShells = {
+          default = devEnv;
+          auth-client = pkgs.qiqe.auth-client.shell;
+          auth-server = pkgs.qiqe.auth-server.shell;
         };
+        devShell = mergeEnvs pkgs (with devShells; [ auth-client auth-server ]);
 
         apps = {
           auth-server = {
@@ -86,7 +83,19 @@
             in "${script}/bin/auth-server";
           };
 
-          auth-client = pkgs.qiqe.auth-client.static;
+          auth-client = {
+            type = "app";
+            program = let
+              script = pkgs.writeShellApplication {
+                name = "auth-client";
+                runtimeInputs = [ ];
+                text = ''
+                  cd site/client/auth
+                  npm start
+                '';
+              };
+            in "${script}/bin/auth-client";
+          };
 
           postgres = {
             type = "app";

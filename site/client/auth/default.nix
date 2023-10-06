@@ -23,9 +23,17 @@ in {
     src = ./.;
     buildInputs = [ nodejs ];
     buildPhase = ''
-      ln -s ${generated.nodeDependencies}/lib/node_modules ./node_modules
+      mkdir -p ./node_modules
+
+      # Grant write access to node_modules for npm
+      cp -r ${generated.nodeDependencies}/lib/node_modules/* ./node_modules/
+
+      # Add node_modules to the path
       export PATH="${generated.nodeDependencies}/bin:$PATH"
-      npm run build
+
+      # Build the app
+      mkdir -p ./dist
+      BUILD_PATH=./dist npm run build
     '';
     installPhase = ''
       cp -r dist $out/
