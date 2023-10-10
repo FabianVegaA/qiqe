@@ -1687,6 +1687,15 @@ let
         sha512 = "7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==";
       };
     };
+    "@remix-run/router-1.9.0" = {
+      name = "_at_remix-run_slash_router";
+      packageName = "@remix-run/router";
+      version = "1.9.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@remix-run/router/-/router-1.9.0.tgz";
+        sha512 = "bV63itrKBC0zdT27qYm6SDZHlkXwFL1xMBuhkn+X7l0+IIhNaH5wuuvZKp6eKhCD4KFhujhfhCT1YxXW6esUIA==";
+      };
+    };
     "@rollup/plugin-babel-5.3.1" = {
       name = "_at_rollup_slash_plugin-babel";
       packageName = "@rollup/plugin-babel";
@@ -2659,6 +2668,15 @@ let
         sha512 = "PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==";
       };
     };
+    "ace-builds-1.28.0" = {
+      name = "ace-builds";
+      packageName = "ace-builds";
+      version = "1.28.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/ace-builds/-/ace-builds-1.28.0.tgz";
+        sha512 = "wkJp+Wz8MRHtCVdt65L/jPFLAQ0iqJZ2EeD2XWOvKGbIi4mZNwHlpHRLRB8ZnQ07VoiB0TLFWwIjjm2FL9gUcQ==";
+      };
+    };
     "acorn-7.4.1" = {
       name = "acorn";
       packageName = "acorn";
@@ -3287,6 +3305,15 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/boolbase/-/boolbase-1.0.0.tgz";
         sha512 = "JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==";
+      };
+    };
+    "brace-0.11.1" = {
+      name = "brace";
+      packageName = "brace";
+      version = "0.11.1";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/brace/-/brace-0.11.1.tgz";
+        sha512 = "Fc8Ne62jJlKHiG/ajlonC4Sd66Pq68fFwK4ihJGNZpGqboc324SQk+lRvMzpPRuJOmfrJefdG8/7JdWX4bzJ2Q==";
       };
     };
     "brace-expansion-1.1.11" = {
@@ -4313,6 +4340,15 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/didyoumean/-/didyoumean-1.2.2.tgz";
         sha512 = "gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==";
+      };
+    };
+    "diff-match-patch-1.0.5" = {
+      name = "diff-match-patch";
+      packageName = "diff-match-patch";
+      version = "1.0.5";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/diff-match-patch/-/diff-match-patch-1.0.5.tgz";
+        sha512 = "IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==";
       };
     };
     "diff-sequences-27.5.1" = {
@@ -7087,6 +7123,24 @@ let
         sha512 = "FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==";
       };
     };
+    "lodash.get-4.4.2" = {
+      name = "lodash.get";
+      packageName = "lodash.get";
+      version = "4.4.2";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/lodash.get/-/lodash.get-4.4.2.tgz";
+        sha512 = "z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==";
+      };
+    };
+    "lodash.isequal-4.5.0" = {
+      name = "lodash.isequal";
+      packageName = "lodash.isequal";
+      version = "4.5.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/lodash.isequal/-/lodash.isequal-4.5.0.tgz";
+        sha512 = "pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==";
+      };
+    };
     "lodash.memoize-4.1.2" = {
       name = "lodash.memoize";
       packageName = "lodash.memoize";
@@ -8851,6 +8905,15 @@ let
         sha512 = "/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==";
       };
     };
+    "react-ace-10.1.0" = {
+      name = "react-ace";
+      packageName = "react-ace";
+      version = "10.1.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/react-ace/-/react-ace-10.1.0.tgz";
+        sha512 = "VkvUjZNhdYTuKOKQpMIZi7uzZZVgzCjM7cLYu6F64V0mejY8a2XTyPUIMszC6A4trbeMIHbK5fYFcT/wkP/8VA==";
+      };
+    };
     "react-app-polyfill-3.0.0" = {
       name = "react-app-polyfill";
       packageName = "react-app-polyfill";
@@ -8921,6 +8984,24 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/react-refresh/-/react-refresh-0.11.0.tgz";
         sha512 = "F27qZr8uUqwhWZboondsPx8tnC3Ct3SxZA3V5WyEvujRyyNv0VYPhoBg1gZ8/MV5tubQp76Trw8lTv9hzRBa+A==";
+      };
+    };
+    "react-router-6.16.0" = {
+      name = "react-router";
+      packageName = "react-router";
+      version = "6.16.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/react-router/-/react-router-6.16.0.tgz";
+        sha512 = "VT4Mmc4jj5YyjpOi5jOf0I+TYzGpvzERy4ckNSvSh2RArv8LLoCxlsZ2D+tc7zgjxcY34oTz2hZaeX5RVprKqA==";
+      };
+    };
+    "react-router-dom-6.16.0" = {
+      name = "react-router-dom";
+      packageName = "react-router-dom";
+      version = "6.16.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/react-router-dom/-/react-router-dom-6.16.0.tgz";
+        sha512 = "aTfBLv3mk/gaKLxgRDUPbPw+s4Y/O+ma3rEN1u8EgEpLpPe6gNjIsWt9rxushMHHMb7mSwxRGdGlGdvmFsyPIg==";
       };
     };
     "react-scripts-5.0.1" = {
@@ -11379,6 +11460,7 @@ let
       sources."@nodelib/fs.stat-2.0.5"
       sources."@nodelib/fs.walk-1.2.8"
       sources."@pmmmwh/react-refresh-webpack-plugin-0.5.11"
+      sources."@remix-run/router-1.9.0"
       sources."@rollup/plugin-babel-5.3.1"
       sources."@rollup/plugin-node-resolve-11.2.1"
       sources."@rollup/plugin-replace-2.4.2"
@@ -11536,6 +11618,7 @@ let
       sources."@xtuc/long-4.2.2"
       sources."abab-2.0.6"
       sources."accepts-1.3.8"
+      sources."ace-builds-1.28.0"
       sources."acorn-8.10.0"
       (sources."acorn-globals-6.0.0" // {
         dependencies = [
@@ -11627,6 +11710,7 @@ let
       })
       sources."bonjour-service-1.1.1"
       sources."boolbase-1.0.0"
+      sources."brace-0.11.1"
       sources."brace-expansion-1.1.11"
       sources."braces-3.0.2"
       sources."browser-process-hrtime-1.0.0"
@@ -11768,6 +11852,7 @@ let
         ];
       })
       sources."didyoumean-1.2.2"
+      sources."diff-match-patch-1.0.5"
       sources."diff-sequences-27.5.1"
       sources."dir-glob-3.0.1"
       sources."dlv-1.1.3"
@@ -12355,6 +12440,8 @@ let
       sources."locate-path-6.0.0"
       sources."lodash-4.17.21"
       sources."lodash.debounce-4.0.8"
+      sources."lodash.get-4.4.2"
+      sources."lodash.isequal-4.5.0"
       sources."lodash.memoize-4.1.2"
       sources."lodash.merge-4.6.2"
       sources."lodash.sortby-4.7.0"
@@ -12592,6 +12679,7 @@ let
         ];
       })
       sources."react-18.2.0"
+      sources."react-ace-10.1.0"
       (sources."react-app-polyfill-3.0.0" // {
         dependencies = [
           sources."regenerator-runtime-0.13.11"
@@ -12613,6 +12701,8 @@ let
       sources."react-error-overlay-6.0.11"
       sources."react-is-17.0.2"
       sources."react-refresh-0.11.0"
+      sources."react-router-6.16.0"
+      sources."react-router-dom-6.16.0"
       (sources."react-scripts-5.0.1" // {
         dependencies = [
           sources."lru-cache-6.0.0"
