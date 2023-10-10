@@ -14,7 +14,7 @@ The purpose of this project is to learn how to build a full stack application us
 
 ## What pretends to be this project?
 
-This project pretends to be a Play Ground for a DSL language that I want to build. The idea is to create a lambda calculus language with a peak of syntactic sugar, to play with it just for fun.
+This project pretends to be a Play Ground for a DSL language that I want to build. The idea is to create a lambda calculus language with some of syntactic sugar, to play with it just for fun.
 
 ## How to run it?
 
