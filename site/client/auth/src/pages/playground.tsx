@@ -11,33 +11,60 @@ type Result = {
   createdAt: string;
 };
 
-async function runCode(code: string) {
-  // TODO: implement
-  return {
-    id: 1,
-    status: "ok",
-    result: "Hello, World!",
-    createdAt: new Date().toISOString(),
-  };
-}
-
 export default function Playground() {
   const [code, setCode] = useState("");
   const [result, setResult] = useState([] as Result[]);
+
+  const runCode = async (code: string) => {
+    const setErr = (err: string) => {
+      setResult([
+        {
+          id: result.length,
+          status: Error(err || "Something went wrong. Please try again later."),
+          result: "",
+          createdAt: new Date().toLocaleString(),
+        },
+        ...result,
+      ]);
+    };
+
+    const res = await fetch("http://127.0.0.1:8000/api/playground/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+      },
+      body: JSON.stringify({ code: code }),
+    }).catch(setErr);
+
+    if (!res) return;
+
+    await res
+      .json()
+      .then((data) => {
+        setResult([
+          {
+            id: result.length,
+            status: data.status,
+            result: data.result,
+            createdAt: data.createdAt,
+          },
+          ...result,
+        ]);
+      })
+      .catch(setErr);
+  };
+
+  const handleRun = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    if (!code) return;
+    runCode(code);
+  };
 
   return (
     <div className="App">
       <section className="playground">
         <div className="toolbar">
-          <button
-            id="btn-run"
-            className="pure-button"
-            onClick={() => {
-              runCode(code).then((r) => {
-                setResult([r, ...result]);
-              });
-            }}
-          >
+          <button id="btn-run" className="pure-button" onClick={handleRun}>
             Run
           </button>
           <button
