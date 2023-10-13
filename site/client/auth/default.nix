@@ -1,4 +1,4 @@
-{ stdenv, callPackage, nodejs, nodePackages, writeShellScriptBin }:
+{ pkgs, stdenv, callPackage, nodejs, nodePackages, writeShellScriptBin }:
 
 let
   # Import & invoke the generated files from node2nix
@@ -41,16 +41,14 @@ in {
   };
 
   # Development shell with node2nix wrapper script
-  shell = generated.shell.override {
-    buildInputs = [ node2nix ];
-  };
+  shell = generated.shell.override { buildInputs = [ node2nix ]; };
 
   script = pkgs.writeShellApplication {
-                name = "auth-client";
-                runtimeInputs = [ ];
-                text = ''
-                  cd site/client/auth
-                  npm start
-                '';
-              };
+    name = "auth-client";
+    runtimeInputs = [ ];
+    text = ''
+      cd site/client/auth
+      npm start
+    '';
+  };
 }
