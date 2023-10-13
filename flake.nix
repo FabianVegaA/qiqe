@@ -18,6 +18,7 @@
           qiqe = (final.callPackage ./. { } // {
             auth-client = final.callPackage ./site/client/auth { };
             auth-server = final.callPackage ./site/server/auth { };
+            interpreter = final.callPackage ./site/server/interpreter { };
           });
         });
 
@@ -39,16 +40,23 @@
         packages = {
           auth-server = pkgs.qiqe.auth-server.server;
           auth-client = pkgs.qiqe.auth-client.static;
+          interpreter = pkgs.qiqe.interpreter.packages;
         };
 
         devShells = {
           default = devEnv;
           auth-client = pkgs.qiqe.auth-client.shell;
           auth-server = pkgs.qiqe.auth-server.shell;
+          interpreter = pkgs.qiqe.interpreter.shell;
         };
         devShell = mergeEnvs pkgs (with devShells; [ auth-client auth-server ]);
 
         apps = {
+          interpreter = {
+            type = "app";
+            program = "${pkgs.qiqe.interpreter}/bin/interpreter";
+          };
+
           auth-server = {
             type = "app";
             program = let
