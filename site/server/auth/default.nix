@@ -3,7 +3,12 @@
     projectDir = ./.;
     overrides = [ pkgs.poetry2nix.defaultPoetryOverrides ];
   };
-  shell = with pkgs; [ poetry ];
+
+  shell = pkgs.mkShell {
+    buildInputs = with pkgs; [ poetry ];
+    inputsFrom = [ packages.dependencyEnv ];
+  };
+
   script = pkgs.writeShellApplication {
     name = "auth-server";
     runtimeInputs = [ pkgs.openssl ];
