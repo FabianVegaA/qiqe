@@ -11,4 +11,5 @@
       haskell-language-server
     ];
   };
+  script = packages.interpreter;
 }

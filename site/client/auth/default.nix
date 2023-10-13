@@ -18,7 +18,7 @@ in {
   # Location of the node_modules system dependencies
   inherit (generated) nodeDependencies;
 
-  static = stdenv.mkDerivation {
+  packages = stdenv.mkDerivation {
     name = "auth-client";
     src = ./.;
     buildInputs = [ nodejs ];
@@ -44,4 +44,13 @@ in {
   shell = generated.shell.override {
     buildInputs = [ node2nix ];
   };
+
+  script = pkgs.writeShellApplication {
+                name = "auth-client";
+                runtimeInputs = [ ];
+                text = ''
+                  cd site/client/auth
+                  npm start
+                '';
+              };
 }

@@ -22,24 +22,20 @@
           });
         });
 
-        devEnv = pkgs.mkShell {
-          buildInputs = let nixPackages = with pkgs; [ nixfmt ]; in nixPackages;
-        };
+        devEnv = pkgs.mkShell { buildInputs = let nixPackages = with pkgs; [ nixfmt ]; in nixPackages; };
         mergeEnvs = pkgs: envs:
           pkgs.mkShell (builtins.foldl' (a: v: {
             buildInputs = a.buildInputs ++ v.buildInputs;
             nativeBuildInputs = a.nativeBuildInputs ++ v.nativeBuildInputs;
-            propagatedBuildInputs = a.propagatedBuildInputs
-              ++ v.propagatedBuildInputs;
-            propagatedNativeBuildInputs = a.propagatedNativeBuildInputs
-              ++ v.propagatedNativeBuildInputs;
+            propagatedBuildInputs = a.propagatedBuildInputs ++ v.propagatedBuildInputs;
+            propagatedNativeBuildInputs = a.propagatedNativeBuildInputs ++ v.propagatedNativeBuildInputs;
             shellHook = a.shellHook + "\n" + v.shellHook;
           }) (devEnv) envs);
 
       in rec {
         packages = {
-          auth-server = pkgs.qiqe.auth-server.server;
-          auth-client = pkgs.qiqe.auth-client.static;
+          auth-server = pkgs.qiqe.auth-server.packages;
+          auth-client = pkgs.qiqe.auth-client.packages;
           interpreter = pkgs.qiqe.interpreter.packages;
         };
 
@@ -54,55 +50,17 @@
         apps = {
           interpreter = {
             type = "app";
-            program = "${pkgs.qiqe.interpreter}/bin/interpreter";
+            program = "${pkgs.qiqe.interpreter.script}/bin/interpreter";
           };
 
           auth-server = {
             type = "app";
-            program = let
-              script = pkgs.writeShellApplication {
-                name = "auth-server";
-                runtimeInputs = [ pkgs.openssl ];
-                text = ''
-                  export PGSERVICEFILE="$PWD/data/.pg_service.conf"
-                  export PGPASSFILE="$PWD/data/.pgpass"
-
-                  DJANGO_SUPERUSER_USERNAME="$(whoami)-$(openssl rand -base64 32 | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)"
-                  DJANGO_SUPERUSER_EMAIL="$DJANGO_SUPERUSER_USERNAME@admin.com" # TODO: use a real domain name
-                  DJANGO_SUPERUSER_PASSWORD="$(openssl rand -base64 32)"
-
-                  export DJANGO_SUPERUSER_USERNAME
-                  export DJANGO_SUPERUSER_EMAIL
-                  export DJANGO_SUPERUSER_PASSWORD
-
-                  cd site/server/auth
-
-                  cat <<EOF > .env
-                  DJANGO_SUPERUSER_USERNAME=$DJANGO_SUPERUSER_USERNAME
-                  DJANGO_SUPERUSER_EMAIL=$DJANGO_SUPERUSER_EMAIL
-                  DJANGO_SUPERUSER_PASSWORD=$DJANGO_SUPERUSER_PASSWORD
-                  EOF
-
-                  poetry run manage migrate
-                  poetry run manage createsuperuser --noinput
-                  poetry run manage runserver --noreload
-                '';
-              };
-            in "${script}/bin/auth-server";
+            program = "${pkgs.qiqe.auth-server.script}/bin/auth-server";
           };
 
           auth-client = {
             type = "app";
-            program = let
-              script = pkgs.writeShellApplication {
-                name = "auth-client";
-                runtimeInputs = [ ];
-                text = ''
-                  cd site/client/auth
-                  npm start
-                '';
-              };
-            in "${script}/bin/auth-client";
+            program = "${pkgs.qiqe.auth-client.script}/bin/auth-client";
           };
 
           postgres = {
