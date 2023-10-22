@@ -18,7 +18,7 @@
           qiqe = (final.callPackage ./. { } // {
             auth-client = final.callPackage ./site/client/auth { };
             auth-server = final.callPackage ./site/server/auth { };
-            interpreter = final.callPackage ./site/server/interpreter { };
+            interpreter = final.callPackage ./site/server/Interpreter { };
           });
         });
 

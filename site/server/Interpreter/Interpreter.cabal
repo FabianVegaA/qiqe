@@ -1,0 +1,27 @@
+name:               Interpreter
+version:            0.1.0.0
+
+-- synopsis:
+-- description:
+homepage:           https://github.com/githubuser/Interpreter#readme
+author:             Fabián Vega Alcota
+maintainer:         fabianveal@gmail.com
+copyright:          2023 Fabián Vega Alcota
+category:           Web
+build-type:         Simple
+cabal-version:      >=1.10
+extra-source-files: README.md
+
+executable Interpreter
+  hs-source-dirs:   src
+  main-is:          Main.hs
+  other-modules:    Schema
+  ghc-options:      -Wall
+  default-language: Haskell2010
+  build-depends:
+      base            >=4.12  && <5
+    , mu-grpc-server  >=0.4.0
+    , mu-protobuf     >=0.4.0
+    , mu-rpc          >=0.4.0
+    , mu-schema       >=0.3.1
+    , text
