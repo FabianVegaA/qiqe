@@ -16,9 +16,16 @@
 
         overlay = (final: prev: {
           qiqe = (final.callPackage ./. { } // {
+            # Qiqe services
             auth-client = final.callPackage ./site/client/auth { };
             auth-server = final.callPackage ./site/server/auth { };
             interpreter = final.callPackage ./site/server/Interpreter { };
+
+            # Development environment applications
+            postgres = final.callPackage ./nix/postgres.nix { };
+            postgrest = final.callPackage ./nix/postgrest.nix { };
+            createdb = final.callPackage ./nix/createdb.nix { };
+
           });
         });
 
@@ -52,86 +59,17 @@
             type = "app";
             program = "${pkgs.qiqe.interpreter.script}/bin/interpreter";
           };
-
           auth-server = {
             type = "app";
             program = "${pkgs.qiqe.auth-server.script}/bin/auth-server";
           };
-
           auth-client = {
             type = "app";
             program = "${pkgs.qiqe.auth-client.script}/bin/auth-client";
           };
-
-          postgres = {
-            type = "app";
-            program = let
-              script = pkgs.writeShellApplication {
-                name = "pg_start";
-                runtimeInputs = [ pkgs.postgresql ];
-                text = ''
-                  # Initialize a database with data stored in current project dir
-                  [ ! -d "./data/db" ] && initdb --no-locale -D ./data/db
-
-                  postgres -D ./data/db -k "$PWD"/data
-                '';
-              };
-            in "${script}/bin/pg_start";
-          };
-
-          createdb = {
-            type = "app";
-            program = let
-              script = pkgs.writeShellApplication {
-                name = "createdb";
-                runtimeInputs = [ pkgs.postgresql pkgs.openssl ];
-                text = ''
-                  # Create a database of your current user
-                  if ! psql -h "$PWD"/data -lqt | cut -d \| -f 1 | grep -qw "$(whoami)"; then
-                    createdb -h "$PWD"/data "$(whoami)"
-                  fi
-
-                  # Generate a password
-                  PG_PASSWORD=$(openssl rand -base64 32)
-
-                  # Load DB dump
-                  cat <<EOF > db.sql
-                  create role authenticator noinherit login password '$PG_PASSWORD';
-                  create role qiqe_user nologin;
-                  create database authenticator owner authenticator;
-                  EOF
-
-                  psql -h "$PWD"/data < db.sql
-
-                  # Create .pgpass
-                  echo "localhost.authenticator.$(whoami).$PG_PASSWORD" > "$PWD"/data/.pgpass && chmod 600 "$PWD"/data/.pgpass
-
-                  # Create .pg_service.conf
-                  cat <<EOF > "$PWD"/data/.pg_service.conf && chmod 600 "$PWD"/data/.pg_service.conf
-                  [authenticator]
-                  host=localhost
-                  user=$(whoami)
-                  dbname=authenticator
-                  port=5432
-                  EOF
-                '';
-              };
-            in "${script}/bin/createdb";
-          };
-
-          postgrest = {
-            type = "app";
-            program = let
-              script = pkgs.writeShellApplication {
-                name = "pgREST";
-                runtimeInputs = [ pkgs.postgrest ];
-                text = ''
-                  postgrest data/db.conf
-                '';
-              };
-            in "${script}/bin/postgrest";
-          };
-
+          postgres = pkgs.qiqe.postgres;
+          createdb = pkgs.qiqe.createdb;
+          postgrest = pkgs.qiqe.postgrest;
         };
       });
 }
