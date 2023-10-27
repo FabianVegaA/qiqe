@@ -35,6 +35,8 @@
         dbname=authenticator
         port=5432
         EOF
+
+        exit 0
       '';
       
     };
