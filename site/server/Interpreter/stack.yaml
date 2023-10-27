@@ -1,6 +1,7 @@
 resolver: lts-16.22
 allow-newer: true
 extra-deps:
+- mtl-2.2.2
 # mu
 - mu-schema-0.3.1.1
 - mu-rpc-0.4.0.1
