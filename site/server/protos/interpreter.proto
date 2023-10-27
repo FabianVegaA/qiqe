@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package interpreter;
+
+// The interpreter service is used to run code in a sandboxed environment.
+service InterpreterService {
+    rpc run(InterpreterRequest) returns (InterpreterResponse);
+}
+
+// The InterpreterRequest message contains the code to be run.
+message InterpreterRequest {
+    string code = 1;
+}
+
+// The InterpreterResponse message contains the output of the code.
+// If the code fails to run, the error field will be populated.
+// The status field will be true if the code ran successfully.
+message InterpreterResponse {
+    string output = 1;
+    string error = 2;
+    bool status = 3;
+}

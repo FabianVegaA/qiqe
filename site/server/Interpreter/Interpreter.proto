@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-import "google/protobuf/empty.proto";
-
-package Interpreter;
-
-service Service {
-
-}
