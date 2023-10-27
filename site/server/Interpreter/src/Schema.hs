@@ -1,3 +1,4 @@
+{-# language CPP                   #-}
 {-# language DataKinds             #-}
 {-# language DeriveAnyClass        #-}
 {-# language DeriveGeneric         #-}
@@ -12,20 +13,24 @@
 
 module Schema where
 
--- import Data.Text as T
--- import GHC.Generics
+import Data.Text (Text)
+import GHC.Generics
 
-import Mu.Quasi.GRpc
 import Mu.Schema
+import Mu.Quasi.GRpc
 
-grpc "TheSchema" id "Interpreter.proto"
+grpc "InterpreterSchema" id "../protos/interpreter.proto"
 
--- A. Map to Haskell types
--- data Message
---   = Message { ... }
---   deriving ( Eq, Show, Generic
---            , ToSchema   TheSchema "Message"
---            , FromSchema TheSchema "Message" )
+data InterpreterRequest = InterpreterRequest
+  { code :: Text
+  } deriving ( Eq, Show, Ord, Generic
+             , ToSchema   InterpreterSchema "InterpreterRequest"
+             , FromSchema InterpreterSchema "InterpreterRequest" )
 
--- B. Use optics
-type Message = Term TheSchema (TheSchema :/: "Message")
+data InterpreterResponse = InterpreterResponse
+  { output :: Text
+  , error  :: Text
+  , status :: Bool
+  } deriving ( Eq, Show, Ord, Generic
+             , ToSchema   InterpreterSchema "InterpreterResponse"
+             , FromSchema InterpreterSchema "InterpreterResponse" )
