@@ -15,6 +15,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
 
+import grpc
+
+from protoc.interpreter_pb2 import InterpreterRequest
+from protoc.interpreter_pb2_grpc import InterpreterServiceStub
+
+from auth_server.settings import GRPC_SERVER
+
 
 @csrf_exempt
 def code_runner(request):
@@ -22,15 +29,18 @@ def code_runner(request):
         data = JSONParser().parse(request)
         serializer = CodeRunnerSerializer(data=data)
         if serializer.is_valid():
-            # TODO: Request Interpreter server using gRPC
+            code = serializer.data["code"]
 
-            return JsonResponse(
-                {
-                    "id": 0,
-                    "result": "Hello World!",
-                    "status": "ok",
-                    "createdAt": datetime.now().isoformat(),
-                }
-            )
+            with grpc.insecure_channel(GRPC_SERVER) as channel:
+                res = InterpreterServiceStub(channel).run(InterpreterRequest(code=code))
+                return JsonResponse(
+                    {
+                        "id": 0,
+                        "result": res.output,
+                        "error": res.error,
+                        "status": res.status,
+                        "createdAt": datetime.now().isoformat(),
+                    }
+                )
 
     return Response(status=400)
