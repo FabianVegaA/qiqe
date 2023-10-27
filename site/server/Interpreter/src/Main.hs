@@ -16,6 +16,7 @@ import Schema
 
 import Interpreter.Lexer (lexer)
 import Interpreter.Parser (parse, ParseError(..))
+import Interpreter.Compiler (compile)
 
 main :: IO ()
 main = do
@@ -34,9 +35,14 @@ runCode :: Text -> (Text, Text, Bool)
 runCode code = case lexer $ unpack code of
   Left err -> ("", pack $ show err, False)
   Right res -> 
-    -- (pack $ show res, "", True)
     case parse res of
-      Right astRest -> (pack $ show astRest, "", True)
+      Right astRest -> let 
+        script = compile astRest
+        in case script of 
+          Right script' -> (script', "", True)
+          Left err' -> let
+            msg = "Compile error. Maybe the error is in the compiler? \n\tCompiler output: " <> pack (show err')
+            in ("", msg, False)
       Left FailedParser -> let 
         err' = pack $ show FailedParser
         msg = "Parse error with '" <> err' <> "'. Maybe the error is in the lexer? \n\tLexer output: " <> pack (show res)
