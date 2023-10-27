@@ -7,12 +7,19 @@
   shell = pkgs.mkShell {
     buildInputs = with pkgs; [ poetry ];
     inputsFrom = [ packages.dependencyEnv ];
+    shellHook = ''
+      echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+    '';
+    LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib";
   };
 
   script = pkgs.writeShellApplication {
     name = "auth-server";
     runtimeInputs = [ pkgs.openssl ];
     text = ''
+      # Verify that LD_LIBRARY_PATH is set correctly
+      export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib"
+
       export PGSERVICEFILE="$PWD/data/.pg_service.conf"
       export PGPASSFILE="$PWD/data/.pgpass"
 
