@@ -4,15 +4,18 @@ import AceEditor from "react-ace";
 import "brace/mode/lisp";
 import "brace/theme/github";
 
+import postCode from "../api/run-code";
+
 type Result = {
   id: number;
-  status: string | Error;
+  status: boolean;
+  error: string;
   result: string;
   createdAt: string;
 };
 
 export default function Playground() {
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState('print "Hello, World!"');
   const [result, setResult] = useState([] as Result[]);
 
   const runCode = async (code: string) => {
@@ -20,21 +23,16 @@ export default function Playground() {
       setResult([
         {
           id: result.length,
-          status: Error(err || "Something went wrong. Please try again later."),
+          status: false,
+          error: err || "Something went wrong. Please try again later.",
           result: "",
-          createdAt: new Date().toLocaleString(),
+          createdAt: new Date().toDateString(),
         },
         ...result,
       ]);
     };
 
-    const res = await fetch("http://127.0.0.1:8000/api/playground/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-      body: JSON.stringify({ code: code }),
-    }).catch(setErr);
+    const res = await postCode(code).catch(setErr);
 
     if (!res) return;
 
@@ -45,6 +43,7 @@ export default function Playground() {
           {
             id: result.length,
             status: data.status,
+            error: data.error,
             result: data.result,
             createdAt: data.createdAt,
           },
@@ -59,7 +58,6 @@ export default function Playground() {
     if (!code) return;
     runCode(code);
   };
-
   return (
     <div className="App">
       <section className="playground">
@@ -91,10 +89,8 @@ export default function Playground() {
           <ul>
             {result.map((r) => (
               <li key={r.id}>
-                {r.status instanceof Error ? (
-                  <div className="status error">
-                    {(r.status as Error).message}
-                  </div>
+                {!r.status ? (
+                  <div className="error">{r.error}</div>
                 ) : (
                   <div className="result">{r.result}</div>
                 )}
