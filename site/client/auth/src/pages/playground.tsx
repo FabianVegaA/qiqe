@@ -1,10 +1,10 @@
 import { useState } from "react";
-
 import AceEditor from "react-ace";
 import "brace/mode/lisp";
 import "brace/theme/github";
 
 import postCode from "../api/run-code";
+import codeEvaluate from "../lib/code-eval";
 
 type Result = {
   id: number;
@@ -15,40 +15,54 @@ type Result = {
 };
 
 export default function Playground() {
-  const [code, setCode] = useState('print "Hello, World!"');
+  const [code, setCode] = useState("");
   const [result, setResult] = useState([] as Result[]);
 
-  const runCode = async (code: string) => {
-    const setErr = (err: string) => {
-      setResult([
-        {
-          id: result.length,
-          status: false,
-          error: err || "Something went wrong. Please try again later.",
-          result: "",
-          createdAt: new Date().toDateString(),
-        },
-        ...result,
-      ]);
-    };
+  const addResult = (res: Result) => setResult([res, ...result]);
+  const clearResult = () => setResult([]);
 
+  const setErr = (err: string) => {
+    addResult({
+      id: result.length,
+      status: false,
+      error: err || "Something went wrong. Please try again later.",
+      result: "",
+      createdAt: new Date().toDateString(),
+    });
+  };
+
+  const runCode = async (code: string) => {
     const res = await postCode(code).catch(setErr);
 
     if (!res) return;
 
     await res
       .json()
-      .then((data) => {
-        setResult([
-          {
-            id: result.length,
-            status: data.status,
-            error: data.error,
-            result: data.result,
-            createdAt: data.createdAt,
-          },
-          ...result,
-        ]);
+      .then((data: Result) => {
+        if (!data.status) {
+          addResult(data);
+          return;
+        }
+
+        codeEvaluate(data.result)
+          .then((stdout: string) => {
+            addResult({
+              id: data.id,
+              status: data.status,
+              error: data.error,
+              result: stdout,
+              createdAt: data.createdAt,
+            });
+          })
+          .catch((stderr: string) => {
+            addResult({
+              id: data.id,
+              status: data.status && !stderr,
+              error: data.error || stderr,
+              result: "",
+              createdAt: data.createdAt,
+            });
+          });
       })
       .catch(setErr);
   };
@@ -58,6 +72,7 @@ export default function Playground() {
     if (!code) return;
     runCode(code);
   };
+
   return (
     <div className="App">
       <section className="playground">
@@ -65,38 +80,38 @@ export default function Playground() {
           <button id="btn-run" className="pure-button" onClick={handleRun}>
             Run
           </button>
-          <button
-            id="btn-clear"
-            className="pure-button"
-            onClick={() => {
-              setResult([]);
-            }}
-          >
+          <button id="btn-clear" className="pure-button" onClick={clearResult}>
             Clear
           </button>
           <button id="btn-save" className="pure-button">
             Save
           </button>
         </div>
-        <AceEditor
-          mode="lisp"
-          theme="github"
-          onChange={setCode}
-          name="playground"
-          editorProps={{ $blockScrolling: true }}
-        />
+        <div className="code-editor">
+          <AceEditor
+            mode="lisp"
+            theme="github"
+            onChange={setCode}
+            name="code-editor"
+          />
+        </div>
         <div id="result" className="code-result">
           <ul>
-            {result.map((r) => (
-              <li key={r.id}>
-                {!r.status ? (
-                  <div className="error">{r.error}</div>
-                ) : (
-                  <div className="result">{r.result}</div>
-                )}
-                <div className="created-at">{r.createdAt}</div>
-              </li>
-            ))}
+            {Array.from(result.entries()).map(
+              ([id, { createdAt, status, error, result }]: [
+                number,
+                Result
+              ]) => (
+                <li key={id}>
+                  {status ? (
+                    <pre className="result">{result}</pre>
+                  ) : (
+                    <pre className="error">{error}</pre>
+                  )}
+                  <div className="created-at">{createdAt}</div>
+                </li>
+              )
+            )}
           </ul>
         </div>
       </section>
