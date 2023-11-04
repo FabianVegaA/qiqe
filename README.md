@@ -1,52 +1,41 @@
 # Qiqe
 
-This is a project to learn how to build a monorepo for a full stack application, using [NixOs]() and [Flake]().
-
-> **Note**: This project is a work in progress, the documentation is not complete yet, and the project is not ready to be used.
+This an experimental playground for a general purpose functional language. This is the implementation of a web application that allows to write and execute Qiqe code in the browser.
 
 ## What means Qiqe?
 
 This is a mutated word from the spanish word "Quique", which is an animal that lives in the south of Chile. It's a little mammal that lives in the ground.
 
-## What is the purpose of this project?
+## Demo
 
-The purpose of this project is to learn how to build a full stack application using NixOs and Flake. The idea is to have a monorepo with a backend and a frontend, and to be able to deploy it in a server.
+The application consists of a code editor, a compiler, a controller and a web server. The controller is a Django application that interacts with the compiler and the web server. The compiler is a Haskell gRPC server that compiles the code to a javascript code. The code editor is a React application that allows to write Qiqe code and execute it in the browser.
 
-## What pretends to be this project?
+![Demo](doc/demo.png)
 
-This project pretends to be a Play Ground for a DSL language that I want to build. The idea is to create a lambda calculus language with some of syntactic sugar, to play with it just for fun.
+## Documentation
 
-## How to run it?
+You can find the documentation [here](doc/README.md).
 
-### Requirements
+More examples can be found in the [examples](doc/examples/) directory.
 
-- [NixOs](https://nixos.org/download.html)
-- [Flake](https://nixos.wiki/wiki/Flakes)
+## Development
 
-### Run
+For development, you need to have [NixOS](https://nixos.org/) and [Flake](https://nixos.wiki/wiki/Flakes) installed. Then, you can run the following command to start the development server:
 
-This project is a monorepo with various applications inside. To run it, you need to run the following command:
-
-```bash
-nix run .#<app-name>
+```sh
+nix run .#dev
 ```
 
-> Apps:
->
-> - auth-client: This is the frontend application
-> - auth-server: This is the backend application
-> - postgres: This is the database
-> - postgrest: This is the API for the database
-> - createdb: This is a script to create the database
+This will start a Postgres database and a web server. The web server (React) will automatically reload when you change the code. Other services (Compiler and Controller) will be reloaded when you run the command again.
 
-> **Note**: I am working on a way to run all the applications at once.
+## Deployment
 
-### Development
+> **TODO**: It is not deployed yet.
 
-Same as the run above, but with the following command:
+## Motivation
 
-```bash
-nix develop .#<app-name>
-```
+The idea of this project is experiment with a general purpose functional language. And in the future, allow to use visual programming.
 
-> **Note**: Maybe you need to add the `--impure` flag to the command above.
+## Contributing
+
+If you want to contribute, you can open an issue or a pull request. You can also contact me at [Twitter](https://twitter.com/fabianmativeal).
