@@ -35,7 +35,7 @@ const runtime = (code: string): { stdout: string; stderr: string } => {
         stdout += value.toString() + "\\n";
       }
   
-      ${code.replaceAll(/([_a-zA-Z][_a-zA-Z0-9]*)'$/g, "$1__PRIME__")};
+      ${code.replaceAll(/([_a-zA-Z][_a-zA-Z0-9]*)'/gm, "$1__PRIME__")};
     } catch (e) {
       stderr += e.toString();
     } finally {
@@ -50,6 +50,7 @@ const runtime = (code: string): { stdout: string; stderr: string } => {
 };
 
 const codeEvaluate = (jsCode: string): Promise<string> => {
+  console.log(jsCode);
   return new Promise((resolve, reject) => {
     const { stdout, stderr } = runtime(jsCode);
     if (stderr) {
