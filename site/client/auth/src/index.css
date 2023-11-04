@@ -80,17 +80,95 @@ button:active {
 }
 
 .playground .toolbar {
-  grid-column: 1 / 3;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: left;
 }
 
-.playground .code-editor {
-  grid-column: 1 / 2;
+.pure-button {
+  background-color: #3992ff;
+  color: white;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem;
+  border: none;
+  box-shadow: 0 0px 1px hsla(0, 0%, 0%, 0.2), 0 1px 2px hsla(0, 0%, 0%, 0.2);
 }
 
-.playground > .code-result {
-  grid-column: 2 / 3;
-  background-color: #f5f5f5;
+/*
+ * If the screen is wider than 700px, use a 2-column layout
+ * If the screen is less than 700px wide, use a 1-column layout
+ * The toolbar should always be in the first row
+ */
+
+@media (max-width: 700px) {
+  .playground {
+    grid-template-columns: 1fr;
+    grid-template-rows: 10% 45% 45%;
+    grid-template: "toolbar toolbar" 10% "code-editor code-result" 1fr / 1fr 1fr;
+
+    grid-gap: 0.5rem;
+    padding: 0.1rem;
+    justify-content: center;
+  }
+
+  .playground .toolbar {
+    grid-column: 1 / 4;
+    grid-row: 1 / 2;
+  }
+
+  .playground .code-editor {
+    grid-column: 1 / 4;
+    grid-row: 2 / 3;
+  }
+
+  /* Overwrite the height of the Ace code editor */
+  .playground #code-editor {
+    width: 100% !important;
+    height: 50vh !important;
+  }
+
+  .playground .ace_print-margin {
+    display: none !important;
+  }
+
+  .playground > .code-result {
+    grid-column: 1 / 4;
+    grid-row: 3 / 4;
+    background-color: #f5f5f5;
+    height: 50vh;
+  }
 }
+
+@media (min-width: 700px) {
+  .playground {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 10% 45% 45%;
+
+    grid-template: "toolbar toolbar" 10% "code-editor code-result" 1fr / 1fr 1fr;
+
+    grid-gap: 0.5rem;
+    padding: 0.1rem;
+    justify-content: center;
+  }
+
+  .playground .toolbar {
+    grid-column: 1 / 4;
+  }
+
+  .playground .code-editor {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+  }
+
+  .playground > .code-result {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    background-color: #f5f5f5;
+  }
+}
+
 .playground > .code-result ul {
   list-style: none;
   padding: 0;
@@ -101,6 +179,17 @@ button:active {
   padding: 0.5rem;
   margin-left: 1rem;
   border-bottom: 1px solid #ddd;
+}
+
+.playground > .code-result pre {
+  margin: 0;
+  padding: 0;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #010101;
+  /* Max width of the text */
+  max-width: 100%;
 }
 
 .playground > .code-result li::before {
