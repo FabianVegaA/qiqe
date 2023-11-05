@@ -5,8 +5,9 @@ export default function Navbar() {
     <div id="navbar">
       <Link to="/">Home</Link>
       <Link to="/playground">Playground</Link>
-      <Link to="/login">Login</Link>
-      <Link to="/signup">Signup</Link>
+      <Link to="/docs">Docs</Link>
+      {/* <Link to="/login">Login</Link>
+      <Link to="/signup">Signup</Link> */}
     </div>
   );
 }

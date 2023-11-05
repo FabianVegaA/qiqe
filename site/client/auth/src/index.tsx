@@ -6,9 +6,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Root from "./pages/root";
 import ErrorPage from "./error-page";
 import Playground from "./pages/playground";
-import Signup from "./pages/signup";
-import Login from "./pages/login";
 import Home from "./pages/home";
+import Docs from "./pages/docs";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -29,13 +28,18 @@ const router = createBrowserRouter([
         element: <Playground />,
       },
       {
-        path: "signup",
-        element: <Signup />,
+        path: "docs",
+        element: <Docs />,
       },
-      {
-        path: "login",
-        element: <Login />,
-      },
+      // TODO: Uncomment when auth is implemented
+      // {
+      //   path: "signup",
+      //   element: <Signup />,
+      // },
+      // {
+      //   path: "login",
+      //   element: <Login />,
+      // },
     ],
   },
 ]);
