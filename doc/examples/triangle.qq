@@ -1,0 +1,19 @@
+let repeatStr = \str sep n.
+    if eq n 1 then str
+    else concat
+        (concat str sep)
+        (repeatStr str sep (sub n 1))
+        
+let appendNewLine = \str. concat str "\n"
+
+let triangle' = \char n t.
+    if eq n 1 then ""
+    else concat
+            (appendNewLine
+                (concat (repeatStr " " "" n)
+                        (repeatStr char " " t)))
+            (triangle' char (sub n 1) (add t 1))
+
+let triangle = \char n. triangle' char n 1
+
+print (triangle "*" 10)

@@ -1,0 +1,15 @@
+let repeatStr = \str sep n.
+    if eq n 1 then str
+    else concat
+        (concat str sep)
+        (repeatStr str sep (sub n 1))
+        
+let appendNewLine = \str. concat str "\n"
+
+let stairs = \char sep n.
+    if eq n 1 then appendNewLine char
+    else concat
+            (stairs char sep (sub n 1))
+            (appendNewLine (repeatStr char sep n))
+
+print (stairs "+" " " 10)
