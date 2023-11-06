@@ -238,10 +238,20 @@ token = oneOf
       ]
     
     literal :: Lexer (Token, String)
-    literal = intLit <|> boolLit <|> stringLit
+    literal = intLit <|> floatLit <|> boolLit <|> stringLit
       where
         intLit :: Lexer (Token, String)
-        intLit = fmap (\ n -> (IntLit (read n), n)) $ some (satisfies isDigit) 
+        intLit = fmap (\ n -> (IntLit (read n), n)) $ let
+          sign = string "-" <|> string ""
+          digits = some (satisfies isDigit)
+          in liftA2 (++) sign digits
+
+        floatLit :: Lexer (Token, String)
+        floatLit = fmap (\ n -> (FloatLit (read n), n)) $ let
+          sign = string "-" <|> string ""
+          digits = some (satisfies isDigit)
+          dot = char '.'
+          in liftA2 (++) sign (liftA2 (++) digits (liftA2 (:) dot digits))
 
         boolLit :: Lexer (Token, String)
         boolLit = BoolLit True `with` string "true" <|> BoolLit False `with` string "false"

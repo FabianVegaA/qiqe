@@ -19,6 +19,7 @@ type ValName = String
 
 data Literal 
   = IntLitExpr Int
+  | FloatLitExpr Float
   | BoolLitExpr Bool
   | StringLitExpr String
   deriving (Show, Eq, Ord)
@@ -84,11 +85,16 @@ name =
     _ -> Nothing
 
 literal :: Parser Literal
-literal = intLit <|> stringLit <|> boolLit
+literal = intLit <|> floatLit <|> stringLit <|> boolLit
   where
     intLit :: Parser Literal
     intLit = pluck $ \case 
       IntLit i -> Just (IntLitExpr i)
+      _ -> Nothing
+
+    floatLit :: Parser Literal
+    floatLit = pluck $ \case
+      FloatLit f -> Just (FloatLitExpr f)
       _ -> Nothing
 
     stringLit :: Parser Literal

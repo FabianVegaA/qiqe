@@ -42,6 +42,7 @@ evalValDef (NameDefinition name expr) = "const " <> evalName name <> "=" <> eval
 
 evalLit :: Literal -> Text
 evalLit (IntLitExpr i) = pack $ show i
+evalLit (FloatLitExpr f) = pack $ show f
 evalLit (BoolLitExpr b) = if b then "true" else "false"
 evalLit (StringLitExpr s) = "\"" <> pack s <> "\""
 
