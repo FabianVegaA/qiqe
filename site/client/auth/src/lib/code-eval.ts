@@ -26,6 +26,13 @@ const sqrt = (a) => pow(a)(0.5);
 const abs = (a) => Math.abs(a);
 const succ = (a) => add(a)(1);
 const pred = (a) => sub(a)(1);
+const neg = (a) => -a;
+const min = (a) => (b) => Math.min(a, b);
+const max = (a) => (b) => Math.max(a, b);
+const floor = (a) => Math.floor(a);
+const ceil = (a) => Math.ceil(a);
+const round = (a) => Math.round(a);
+const truncate = (a) => a < 0 ? ceil(a) : floor(a);
 // String operators
 const concat = (a) => (b) => a + b;
 const show = (a) => a.toString();
