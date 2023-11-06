@@ -106,10 +106,11 @@ This language is a non-typed language. It means that you don't have to specify t
 The types are:
 
 - Integer
+- Float
 - Boolean
 - String
 
-> TODO: Add Float type and an iterable type like List or Tuple. The implementation of the iterable type is not decided yet, but it will be thought using cons operator.
+> TODO: Add iterable type like List or Tuple. The implementation of the iterable type is not decided yet, but it will be thought using cons operator.
 
 ## Prelude
 
@@ -180,6 +181,13 @@ or true false # Returns true
 - `abs`: Absolute value function
 - `succ`: Successor to a number
 - `pred`: Predecessor to a number
+- `neg`: Negation function
+- `min`: Minimum value between two numbers
+- `max`: Maximum value between two numbers
+- `floor`: Floor function
+- `ceil`: Ceil function
+- `round`: Round to the nearest integer, e.g. 1.5 -> 2, 1.4 -> 1
+- `truncate`: Round to the nearest integer towards zero, e.g. 1.5 -> 1, 1.4 -> 1
 
 ```qiqe
 add 1 2 # Returns 3
@@ -192,6 +200,13 @@ sqrt 4 # Returns 2
 abs -1 # Returns 1
 succ 1 # Returns 2
 pred 1 # Returns 0
+neg 1 # Returns -1
+min 1 2 # Returns 1
+max 1 2 # Returns 2
+floor 1.5 # Returns 1
+ceil 1.5 # Returns 2
+round 1.5 # Returns 2
+truncate 1.5 # Returns 1
 ```
 
 #### String
