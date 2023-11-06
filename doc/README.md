@@ -198,8 +198,7 @@ pred 1 # Returns 0
 
 - `concat`: Concatenate two strings
 - `show`: It converts a value to a string
-- `length`: It returns the length of a string
-  If the argument is not a string, it uses show to convert it to a string.
+- `length`: It returns the length of a string. If the argument is not a string, it uses show to convert it to a string.
 
 ```qiqe
 concat "Hello" " World!" # Returns "Hello World!"
