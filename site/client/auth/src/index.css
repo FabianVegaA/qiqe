@@ -258,17 +258,3 @@ blockquote {
   width: 100%;
   padding: 0.5rem;
 }
-
-.docs > ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  background-color: #f5f5f5;
-  width: 100%;
-}
-
-.docs > ul > li {
-  padding: 0.5rem;
-  margin-left: 1rem;
-  font-size: 0.9rem;
-}

@@ -202,11 +202,11 @@ pred 1 # Returns 0
 
   > If the argument is not a string, it uses show to convert it to a string.
 
-  ```qiqe
-  concat "Hello" " World!" # Returns "Hello World!"
-  show 1 # Returns "1"
-  length "Hello" # Returns 5
-  ```
+```qiqe
+concat "Hello" " World!" # Returns "Hello World!"
+show 1 # Returns "1"
+length "Hello" # Returns 5
+```
 
 ## Contributing in the design
 
