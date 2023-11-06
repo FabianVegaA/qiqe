@@ -77,7 +77,7 @@ succ 2 # Returns 3
 
 ### Operators
 
-> **TODO**: Operators are not implemented yet. Only the operators `>>`, `<<`, `|>` and `<|` are implemented, and the others operators are implemented as functions.
+> **TODO**: The operators are not yet implemented. Only the operators `>>`, `<<`, `|>`, `<|`, and `,` (cons operator) will be implemented, and the other operators are implemented as functions.
 
 ### Control Flow
 
