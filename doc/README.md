@@ -43,7 +43,7 @@ A variable is declared using the `let` keyword. The syntax is `let name = expres
 let x = 1
 ```
 
-The variables are immutable. It means that you can't change the value of a variable. If you want to change the value of a variable, you have to create a new variable with the same name.
+The variables are immutable. It means that you can't change the value of a variable.
 
 ```qiqe
 let x = 1
@@ -56,7 +56,7 @@ The syntax of functions is inspired by untyped lambda calculus. The syntax is `\
 
 > **INFO:** The body of a function is an expression, not a block of expressions.
 
-> **TODO:** At the moment, it works like a block of expressions using `where` keyword like in Haskell.
+> **TODO:** At the moment, it will works like a block of expressions using `where` keyword like in Haskell.
 
 ```qiqe
 # Functions inspired by Lambda Calculus
