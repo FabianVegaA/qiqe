@@ -11,6 +11,8 @@
     - [Functions](#functions)
       - [Currying](#currying)
     - [Operators](#operators)
+      - [Composition](#composition)
+      - [Pipe](#pipe)
     - [Control Flow](#control-flow)
     - [Types](#types)
   - [Prelude](#prelude)
@@ -77,7 +79,23 @@ succ 2 # Returns 3
 
 ### Operators
 
-> **TODO**: The operators are not yet implemented. Only the operators `>>`, `<<`, `|>`, `<|`, and `,` (cons operator) will be implemented, and the other operators are implemented as functions.
+#### Composition
+
+The composition operators are `>>` and `<<`. The operator `>>` is the composition operator from right to left. The operator `<<` is the composition operator from left to right.
+
+```qiqe
+f >> g # Equivalent to \x. g (f x)
+f << g # Equivalent to \x. f (g x)
+```
+
+#### Pipe
+
+The pipe operator are `|>` and `<|`. The operator `|>` is the pipe operator from left to right and vice versa.
+
+```qiqe
+x |> f # Equivalent to f x
+f <| x # Equivalent to f x
+```
 
 ### Control Flow
 
