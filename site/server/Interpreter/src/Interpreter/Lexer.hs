@@ -162,14 +162,12 @@ position = reverse . snd . foldl' go ((Start, 0), [])
       let (p', produced) = eat p raw
       in (p', maybeToList produced <> acc)
 
-    eat :: PosState -> RawToken -> (PosState, Maybe (Positioned Token))
-    eat (pos, col) = \case
-      Newline -> ((Start, 0), Nothing)
-      Comment _ -> ((Start, 0), Nothing)
-      Blankspace s -> ((pos, col + length s), Nothing)
-      NormalToken t s ->
-        let token = Positioned t pos col
-        in ((Middle, col + length s), Just token)
+eat :: PosState -> RawToken -> (PosState, Maybe (Positioned Token))
+eat (pos, col) = \case
+  Newline -> ((Start, 0), Nothing)
+  Comment _ -> ((Start, 0), Nothing)
+  Blankspace s -> ((pos, col + length s), Nothing)
+  NormalToken t s -> ((Middle, col + length s), Just (Positioned t pos col))
 
 rawLexer :: Lexer [RawToken]
 rawLexer = some (whitespace <|> comment <|> rawToken)
@@ -229,7 +227,7 @@ token = oneOf
     operator :: Lexer (Token, String)
     operator = oneOf
       [ Dot `with` string "."
-      , Lambda `with` oneOf [string "\\", string "λ"]
+      , Lambda `with` oneOf [string "\\", string "λ", string "\955"]
       , Assign `with` string "="
       , LParen `with` string "("
       , RParen `with` string ")"
