@@ -1,0 +1,18 @@
+let altStr = \f g x.  
+    if neq (f x) "" then f x 
+    else if neq (g x) "" then g x 
+    else ""
+let whenStr = \p s. if p then s else ""
+
+let fizzbuzz = (\n. concat 
+     (whenStr (eq (mod n 3) 0) "fizz")
+     (whenStr (eq (mod n 5) 0) "buzz"))
+     |> flip altStr show
+
+let rangeIter = \f start stop step. if eq start stop
+    then start |> f |> show
+    else concat
+        (start |> f |> show |> flip concat "\n")
+        (rangeIter f (add start step) stop step)
+
+print <| rangeIter fizzbuzz 1 20 1
