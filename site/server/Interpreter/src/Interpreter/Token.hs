@@ -18,11 +18,10 @@ data Token
   | LBrace            -- {
   | RBrace            -- }
   | Semicolon         -- ;
-  -- TODO: Add these
-  -- | LCompose          -- <<
-  -- | RCompose          -- >>
-  -- | LPipe             -- <|
-  -- | RPipe             -- |>
+  | LCompose          -- <<
+  | RCompose          -- >>
+  | LPipe             -- <|
+  | RPipe             -- |>
   deriving (Show, Eq)
 
 data RawToken

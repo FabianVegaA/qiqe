@@ -36,6 +36,17 @@ evalExpr (IdentifierExpr name) = evalName name
 evalExpr (IfExpr e1 e2 e3) = "(" <> evalExpr e1 <> ")?" <> evalExpr e2 <> ":" <> evalExpr e3
 evalExpr (LambdaExpr names expr) = foldr (\name acc -> "((" <> evalName name <> ")=>" <> acc <> ")") (evalExpr expr) names
 evalExpr (ApplyExpr expr exprs) = "(" <> evalExpr expr <> ")" <> foldMap (\e -> "(" <> evalExpr e <> ")") exprs
+evalExpr op@(BinOpExpr _ _ _) = evalOpt op
+
+evalOpt :: Expr -> Text
+evalOpt (BinOpExpr op e1 e2) = case op of
+  LComposeExpr -> evalCompose e1 e2
+  RComposeExpr -> evalCompose e2 e1
+  LPipeExpr -> evalPipe e2 e1
+  RPipeExpr ->  evalPipe e1 e2
+  where
+    evalCompose f1 f2 = "((x)=>((" <> evalExpr f1 <>  ")(" <> evalExpr f2 <>"(x))))"
+    evalPipe e1 e2 = evalExpr (ApplyExpr e2 [e1])
 
 evalValDef :: ValueDefinition -> Text
 evalValDef (NameDefinition name expr) = "const " <> evalName name <> "=" <> evalExpr expr

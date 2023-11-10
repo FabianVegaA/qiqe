@@ -235,6 +235,10 @@ token = oneOf
       , RParen `with` string ")"
       , LBrace `with` string "{"
       , RBrace `with` string "}"
+      , LCompose `with` string "<<"
+      , RCompose `with` string ">>"
+      , LPipe `with` string "<|"
+      , RPipe `with` string "|>"
       ]
     
     literal :: Lexer (Token, String)

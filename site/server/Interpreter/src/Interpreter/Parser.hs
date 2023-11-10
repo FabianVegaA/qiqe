@@ -5,6 +5,7 @@ module Interpreter.Parser where
 import Control.Applicative (Alternative (..), liftA2)
 import Data.Bifunctor (first)
 import Interpreter.Token (Token (..))
+import Data.List (foldl')
 
 data Expr
   = LitExpr Literal
@@ -13,6 +14,7 @@ data Expr
   | ApplyExpr Expr [Expr]
   | LetExpr ValName Expr
   | IfExpr Expr Expr Expr
+  | BinOpExpr BinOp Expr Expr
   deriving (Show, Eq)
 
 type ValName = String
@@ -23,6 +25,13 @@ data Literal
   | BoolLitExpr Bool
   | StringLitExpr String
   deriving (Show, Eq, Ord)
+
+data BinOp
+  = LComposeExpr
+  | RComposeExpr
+  | LPipeExpr
+  | RPipeExpr
+  deriving (Show, Eq)
 
 data Definition 
   = ValueDefinition ValueDefinition
@@ -136,8 +145,23 @@ parensed p = token LParen *> p <* token RParen
 sepBy1 :: Parser a -> Parser b -> Parser [a]
 sepBy1 p sep = liftA2 (:) p (many (sep *> p))
 
+opsL :: Parser (a -> a -> a) -> Parser a -> Parser a
+opsL sep p = liftA2 squash p (many (liftA2 (,) sep p))
+  where
+    squash = foldl' (\acc (combine, a) -> combine acc a)
+
+opsR :: Parser (a -> a -> a) -> Parser a -> Parser a
+opsR sep p = liftA2 squash p (many (liftA2 (,) sep p))
+  where
+    shift (oldStart, stack) (combine, a) =
+      (a, (combine, oldStart) : stack)
+
+    squash start annotated =
+      let (start', annotated') = foldl' shift (start, []) annotated
+       in foldl' (\acc (combine, a) -> combine a acc) start' annotated'
+
 expr :: Parser Expr
-expr = ifExpr <|> appExpr <|> lambdaExpr <|> letExpr
+expr = letExpr <|> ifExpr <|> lambdaExpr <|> binExpr
   where
     ifExpr :: Parser Expr
     ifExpr = 
@@ -156,6 +180,17 @@ expr = ifExpr <|> appExpr <|> lambdaExpr <|> letExpr
         (token Let *> name)
         (token Assign *> expr)
 
+    binExpr :: Parser Expr
+    binExpr = pipe
+      where
+        pipe = opsL (lPipe <|> rPipe) compose
+        lPipe = (BinOpExpr LPipeExpr <$ token LPipe)
+        rPipe = (BinOpExpr RPipeExpr <$ token RPipe)
+
+        compose = opsR (lCompose <|> rCompose) appExpr
+        lCompose = (BinOpExpr LComposeExpr <$ token LCompose) 
+        rCompose = (BinOpExpr RComposeExpr <$ token RCompose)
+
     appExpr :: Parser Expr
     appExpr = fmap extract $ some factor
       where
@@ -168,6 +203,7 @@ expr = ifExpr <|> appExpr <|> lambdaExpr <|> letExpr
       where
         littExpr = fmap LitExpr literal
         nameExpr = fmap IdentifierExpr name
+
 
 
 ast :: Parser AST
