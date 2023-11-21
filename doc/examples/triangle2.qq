@@ -1,0 +1,18 @@
+let repeatStr = \str sep n. if eq n 1 
+    then str
+    else concat 
+        ( concat str sep ) ( sub n 1 |> repeatStr str sep )
+
+let appendNewLine = flip concat "\n"
+
+let triangle' = \char n t. if eq n 0
+    then ""
+    else concat
+        ( concat 
+            ( repeatStr " " "" n ) ( repeatStr char " " t )
+          |> appendNewLine )
+        ( triangle' char ( sub n 1 ) ( add t 1 ) )
+
+let triangle = \char n. triangle' char n 1
+
+print <| triangle "▲"
