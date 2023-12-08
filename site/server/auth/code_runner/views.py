@@ -25,22 +25,19 @@ from auth_server.settings import GRPC_SERVER
 
 @csrf_exempt
 def code_runner(request):
-    if request.method == "POST":
-        data = JSONParser().parse(request)
-        serializer = CodeRunnerSerializer(data=data)
-        if serializer.is_valid():
-            code = serializer.data["code"]
-
+    match request.method:
+        case "POST":
+            serializer = CodeRunnerSerializer(data=JSONParser().parse(request))
+            if not serializer.is_valid():
+                return Response(status=400)
             with grpc.insecure_channel(GRPC_SERVER) as channel:
-                res = InterpreterServiceStub(channel).run(InterpreterRequest(code=code))
-                return JsonResponse(
-                    {
-                        "id": 0,
-                        "result": res.output,
-                        "error": res.error,
-                        "status": res.status,
-                        "createdAt": datetime.now().isoformat(),
-                    }
-                )
-
-    return Response(status=400)
+                res = InterpreterServiceStub(channel).run(InterpreterRequest(code=serializer.data["code"]))
+                return JsonResponse({
+                    "id": 0, # TODO: remove this, it's not needed
+                    "result": res.output,
+                    "error": res.error,
+                    "status": res.status,
+                    "createdAt": datetime.now().isoformat(),
+                })
+        case _:
+            return Response(status=400)
