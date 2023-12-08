@@ -30,7 +30,7 @@
         });
 
         devEnv = pkgs.mkShell {
-          buildInputs = let nixPackages = with pkgs; [ nixfmt ]; in nixPackages;
+          buildInputs = let nixPackages = with pkgs; [ nixfmt node2nix ]; in nixPackages;
         };
         mergeEnvs = pkgs: envs:
           pkgs.mkShell (builtins.foldl' (a: v: {
