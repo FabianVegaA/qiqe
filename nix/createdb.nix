@@ -38,7 +38,6 @@
 
         exit 0
       '';
-      
     };
   in "${script}/bin/createdb";
 }

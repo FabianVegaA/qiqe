@@ -8,6 +8,7 @@
         # Initialize a database with data stored in current project dir
         [ ! -d "./data/db" ] && initdb --no-locale -D ./data/db
 
+        # pg_resetwal -f "$PWD"/data/db
         postgres -D ./data/db -k "$PWD"/data
       '';
     };

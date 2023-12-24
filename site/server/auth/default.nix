@@ -1,7 +1,14 @@
-{ pkgs }: rec {
-  packages = pkgs.poetry2nix.mkPoetryApplication {
+{ pkgs }: let 
+  poetry2nix = import (pkgs.fetchFromGitHub {
+    owner = "nix-community";
+    repo = "poetry2nix";
+    rev = "master";
+    sha256 = "sha256-p6niqag7b4XEHvzWgG0X/xjoW/ZXbAxW8ggd8yReT3Y=";
+  }) { };
+in rec {
+  packages = poetry2nix.mkPoetryApplication {
     projectDir = ./.;
-    overrides = [ pkgs.poetry2nix.defaultPoetryOverrides ];
+    overrides = [ poetry2nix.defaultPoetryOverrides ];
   };
 
   shell = pkgs.mkShell {
@@ -43,5 +50,29 @@
       poetry run manage createsuperuser --noinput
       poetry run manage runserver --noreload
     '';
+  };
+
+  container = pkgs.dockerTools.buildImage {
+    name = "auth-server";
+    tag = "latest";
+    copyToRoot = pkgs.buildEnv {
+      name = "auth-server";
+      paths = [ packages script ];
+      pathsToLink = [ "/bin" ];
+    };
+    config = {
+      Cmd = [ "/bin/manage" ];
+      WorkingDir = "/data";
+      ExposedPorts = {
+        "8000/tcp" = {};
+      };
+      Env = [
+        "PGSERVICEFILE=/data/.pg_service.conf"
+        "PGPASSFILE=/data/.pgpass"
+      ];
+      Volumes = {
+        "/data" = {};
+      };
+    };
   };
 }

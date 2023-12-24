@@ -30,7 +30,7 @@
         });
 
         devEnv = pkgs.mkShell {
-          buildInputs = let nixPackages = with pkgs; [ nixfmt node2nix ]; in nixPackages;
+          buildInputs = let nixPackages = with pkgs; [ nixfmt node2nix postgresql ]; in nixPackages;
         };
         mergeEnvs = pkgs: envs:
           pkgs.mkShell (builtins.foldl' (a: v: {
@@ -46,6 +46,7 @@
       in rec {
         packages = {
           auth-server = pkgs.qiqe.auth-server.packages;
+          auth-server-container = pkgs.qiqe.auth-server.container;
           auth-client = pkgs.qiqe.auth-client.packages;
           interpreter = pkgs.qiqe.interpreter.packages;
         };
