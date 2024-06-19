@@ -4,58 +4,60 @@
 module Interpreter.Compiler where
 
 import Interpreter.Parser
-import Data.Text (Text, intercalate, pack, null)
+import Data.Text (Text, intercalate, pack)
+import Text.Printf (printf)
+import Control.Monad (mapM)
 
-import Prelude hiding (null)
-
-newtype Compiler = Compiler {runCompiler :: AST -> Text}
+newtype Compiler = Compiler {runCompiler :: AST -> Either CompileError Text}
 
 data CompileError
     = FailedCompiler
+    | UnevaluatedAST Expr
+    | EmptyAST
     deriving (Show)
 
 compile :: AST -> Either CompileError Text
-compile ast = 
-  if null code 
-    then Left FailedCompiler 
-    else Right code
-  where
-    code = runCompiler eval ast
+compile ast = runCompiler eval ast
 
 eval :: Compiler
 eval = Compiler evalAST
   where
-    evalAST (AST defs) = intercalate ";" $ map evalDef defs
+    evalAST :: AST -> Either CompileError Text
+    evalAST (AST defs) = do
+      defs <- mapM evalDef defs
+      pure $ intercalate ";\n" defs
 
+    evalDef :: Definition -> Either CompileError Text
     evalDef (ValueDefinition def) = evalValDef def
     evalDef (ExprDefinition expr) = evalExpr expr
 
-evalExpr :: Expr -> Text
-evalExpr (LitExpr lit) = evalLit lit
-evalExpr (IdentifierExpr name) = evalName name
-evalExpr (IfExpr e1 e2 e3) = "(" <> evalExpr e1 <> ")?" <> evalExpr e2 <> ":" <> evalExpr e3
-evalExpr (LambdaExpr names expr) = foldr (\name acc -> "((" <> evalName name <> ")=>" <> acc <> ")") (evalExpr expr) names
-evalExpr (ApplyExpr expr exprs) = "(" <> evalExpr expr <> ")" <> foldMap (\e -> "(" <> evalExpr e <> ")") exprs
-evalExpr op@(BinOpExpr _ _ _) = evalOpt op
+evalExpr :: Expr -> Either CompileError Text
+evalExpr (LitExpr lit) = pure $ evalLit lit
+evalExpr (IdentifierExpr name) = pure $ evalName name
+evalExpr (IfExpr e1 e2 e3) = do
+  e1Gen <- evalExpr e1
+  e2Gen <- evalExpr e2
+  e3Gen <- evalExpr e3
+  pure . pack $ printf "(%s)?(%s):(%s)" e1Gen e2Gen e3Gen
+evalExpr (SingleLambdaExpr name expr) = do 
+  bodyGen <- evalExpr expr
+  pure . pack $ printf "(%s)=>(%s)" (evalName name) bodyGen
+evalExpr (SingleApplyExpr expr1 expr2) = do 
+  funcGen <- evalExpr expr1
+  argGen <- evalExpr expr2
+  pure . pack $ printf "(%s)(%s)" funcGen argGen
+evalExpr expr = Left $ UnevaluatedAST expr
 
-evalOpt :: Expr -> Text
-evalOpt (BinOpExpr op e1 e2) = case op of
-  LComposeExpr -> evalCompose e1 e2
-  RComposeExpr -> evalCompose e2 e1
-  LPipeExpr -> evalPipe e2 e1
-  RPipeExpr ->  evalPipe e1 e2
-  where
-    evalCompose f1 f2 = "((x)=>((" <> evalExpr f1 <>  ")(" <> evalExpr f2 <>"(x))))"
-    evalPipe e1 e2 = evalExpr (ApplyExpr e2 [e1])
-
-evalValDef :: ValueDefinition -> Text
-evalValDef (NameDefinition name expr) = "const " <> evalName name <> "=" <> evalExpr expr
+evalValDef :: ValueDefinition -> Either CompileError Text
+evalValDef (NameDefinition name expr) = do 
+  assignGen <- evalExpr expr
+  pure . pack $ printf "const %s=%s" (evalName name) assignGen
 
 evalLit :: Literal -> Text
 evalLit (IntLitExpr i) = pack $ show i
 evalLit (FloatLitExpr f) = pack $ show f
 evalLit (BoolLitExpr b) = if b then "true" else "false"
-evalLit (StringLitExpr s) = "\"" <> pack s <> "\""
+evalLit (StringLitExpr s) = pack $ printf "\"%s\"" s
 
 evalName :: ValName -> Text
 evalName = pack
