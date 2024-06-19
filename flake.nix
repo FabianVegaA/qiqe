@@ -2,16 +2,18 @@
   description = "Qiqe configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
+    cargo2nix.url = "github:cargo2nix/cargo2nix/release-0.11.0";
+    nixpkgs.url = "github:nixos/nixpkgs";
+    nixpkgs.follows = "cargo2nix/nixpkgs";
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, cargo2nix, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ overlay ];
+          overlays = [ cargo2nix.overlays.default overlay ];
         };
 
         overlay = (final: prev: {
@@ -20,12 +22,10 @@
             auth-client = final.callPackage ./site/client/auth { };
             auth-server = final.callPackage ./site/server/auth { };
             interpreter = final.callPackage ./site/server/Interpreter { };
+            proxy = final.callPackage ./site/server/proxy { system = system; };
 
-            # Development environment applications
-            postgres = final.callPackage ./nix/postgres.nix { };
-            postgrest = final.callPackage ./nix/postgrest.nix { };
-            createdb = final.callPackage ./nix/createdb.nix { };
-
+            # Build tools
+            gen-cargo = final.callPackage ./nix/gen-cargo.nix { };
           });
         });
 
@@ -36,10 +36,8 @@
           pkgs.mkShell (builtins.foldl' (a: v: {
             buildInputs = a.buildInputs ++ v.buildInputs;
             nativeBuildInputs = a.nativeBuildInputs ++ v.nativeBuildInputs;
-            propagatedBuildInputs = a.propagatedBuildInputs
-              ++ v.propagatedBuildInputs;
-            propagatedNativeBuildInputs = a.propagatedNativeBuildInputs
-              ++ v.propagatedNativeBuildInputs;
+            propagatedBuildInputs = a.propagatedBuildInputs ++ v.propagatedBuildInputs;
+            propagatedNativeBuildInputs = a.propagatedNativeBuildInputs ++ v.propagatedNativeBuildInputs;
             shellHook = a.shellHook + "\n" + v.shellHook;
           }) (devEnv) envs);
 
@@ -48,6 +46,7 @@
           auth-server = pkgs.qiqe.auth-server.packages;
           auth-client = pkgs.qiqe.auth-client.packages;
           interpreter = pkgs.qiqe.interpreter.packages;
+          proxy = pkgs.qiqe.proxy.packages;
         };
 
         devShells = {
@@ -55,10 +54,15 @@
           auth-client = pkgs.qiqe.auth-client.shell;
           auth-server = pkgs.qiqe.auth-server.shell;
           interpreter = pkgs.qiqe.interpreter.shell;
+          proxy = pkgs.qiqe.proxy.shell;
         };
         devShell = mergeEnvs pkgs (with devShells; [ auth-client auth-server ]);
 
         apps = {
+          proxy = {
+            type = "app";
+            program = "${pkgs.qiqe.proxy.script}/bin/proxy";
+          };
           interpreter = {
             type = "app";
             program = "${pkgs.qiqe.interpreter.script}/bin/interpreter";
@@ -71,10 +75,6 @@
             type = "app";
             program = "${pkgs.qiqe.auth-client.script}/bin/auth-client";
           };
-          postgres = pkgs.qiqe.postgres;
-          createdb = pkgs.qiqe.createdb;
-          postgrest = pkgs.qiqe.postgrest;
-
           dev = {
             type = "app";
             program = let
@@ -83,19 +83,9 @@
                 runtimeInputs = [ pkgs.concurrently ];
                 text = ''
                   echo "Starting development environment"
-                  echo "Press Ctrl+C to stop"
-                  echo ""
-
-                  # Start postgres
-                  ${apps.postgres.program} &
-                  # Save postgres pid
-                  postgres_pid=$!
-
-                  # Wait for postgres to start
-                  sleep 2
-
-                  npx concurrently \
-                    --names "auth-server,auth-client,interpreter"              \
+                  echo "Press Ctrl+C to stop\n"
+                  npx concurrently                                             \
+                    --names "proxy,auth-client,interpreter"                    \
                     --prefix-colors "bgMagenta.bold,bgBlue.bold,bgYellow.bold" \
                     --kill-others                                              \
                     --success first                                            \
@@ -105,21 +95,39 @@
                     --timestamp-prefix "[{time}]"                              \
                     --command                                                  \
                       "echo 'Interpreter'; ${apps.interpreter.program}"        \
-                      "echo 'Auth-Server'; ${apps.auth-server.program}"        \
+                      "echo 'Proxy'; ${apps.proxy.program}"                    \
                       "echo 'Auth-Client'; ${apps.auth-client.program}"
-
-                  echo "Stopping development environment"
-                  kill $postgres_pid
-                  result=$?
-                  if [ $result -eq 0 ]; then
-                    echo "Postgres stopped"
-                  else
-                    echo "Postgres failed to stop"
-                  fi
-                  exit $result
                 '';
               };
             in "${script}/bin/dev";
+          };
+
+          gen-cargo = {
+            type = "app";
+            program = "${pkgs.qiqe.gen-cargo.script}/bin/gen-cargo";
+          };
+
+          gen = {
+            type = "app";
+            program = let
+              script = pkgs.writeShellApplication {
+                name = "gen";
+                runtimeInputs = [ pkgs.concurrently ];
+                text = ''
+                  npx concurrently                                             \
+                    --names "gen-cargo"                                        \
+                    --prefix-colors "bgMagenta.bold"                            \
+                    --kill-others                                              \
+                    --success first                                            \
+                    --prefix "[{name}]"                                        \
+                    --prefix-length 3                                          \
+                    --timestamp-format "HH:mm:ss"                              \
+                    --timestamp-prefix "[{time}]"                              \
+                    --command                                                  \
+                      "echo 'Gen-Cargo'; ${apps.gen-cargo.program}"
+                '';
+              };
+            in "${script}/bin/gen";
           };
         };
       });
