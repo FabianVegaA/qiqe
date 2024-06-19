@@ -20,6 +20,7 @@ executable Interpreter
     , Interpreter.Lexer
     , Interpreter.Parser
     , Interpreter.Token
+    , Interpreter.Evaluator
     , Interpreter.Compiler
   ghc-options:      -Wall
   default-language: Haskell2010

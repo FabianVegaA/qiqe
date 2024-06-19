@@ -10,8 +10,10 @@ import Data.List (foldl')
 data Expr
   = LitExpr Literal
   | IdentifierExpr ValName
-  | LambdaExpr [ValName] Expr
+  | LambdaExpr [ValName] Expr     -- Contracted lambda expression
+  | SingleLambdaExpr ValName Expr -- Uncontracted lambda expression
   | ApplyExpr Expr [Expr]
+  | SingleApplyExpr Expr Expr
   | LetExpr ValName Expr
   | IfExpr Expr Expr Expr
   | BinOpExpr BinOp Expr Expr
