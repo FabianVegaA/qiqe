@@ -33,7 +33,6 @@ export default function Playground() {
 
   const runCode = async (code: string) => {
     const res = await postCode(code).catch(setErr);
-
     if (!res) return;
 
     await res
@@ -104,9 +103,9 @@ export default function Playground() {
               ]) => (
                 <li key={id}>
                   {status ? (
-                    <pre className="result">{result}</pre>
+                    <pre className="result">{result.toString()}</pre>
                   ) : (
-                    <pre className="error">{error}</pre>
+                    <pre className="error">{error.toString()}</pre>
                   )}
                   <div className="created-at">{createdAt}</div>
                 </li>

@@ -15,4 +15,4 @@ let triangle' = \char n t. if eq n 0
 
 let triangle = \char n. triangle' char n 1
 
-print <| triangle "▲"
+print <| triangle "▲" 10
