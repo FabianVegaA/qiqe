@@ -19,7 +19,7 @@ in {
   inherit (generated) nodeDependencies;
 
   packages = stdenv.mkDerivation {
-    name = "auth-client";
+    name = "client";
     src = ./.;
     buildInputs = [ nodejs ];
     buildPhase = ''
@@ -44,10 +44,10 @@ in {
   shell = generated.shell.override { buildInputs = [ node2nix ]; };
 
   script = pkgs.writeShellApplication {
-    name = "auth-client";
+    name = "client";
     runtimeInputs = [ ];
     text = ''
-      cd site/client/auth
+      cd service/auth
       npm start
     '';
   };

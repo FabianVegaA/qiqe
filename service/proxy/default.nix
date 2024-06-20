@@ -17,7 +17,7 @@
   script = pkgs.writeShellApplication {
     name = "proxy";
     text = ''
-      cd site/server/proxy
+      cd service/proxy
       export CODEGEN_URI="http://0.0.0.0:50051"
       export OUT_DIR=$PWD/src
       if [[ ! -d "$OUT_DIR" ]]; then

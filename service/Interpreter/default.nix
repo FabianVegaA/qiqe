@@ -17,7 +17,7 @@
   script = pkgs.writeShellApplication {
     name = "interpreter";
     text = ''
-      cd site/server/Interpreter 
+      cd service/Interpreter 
       stack run
     '';
   };

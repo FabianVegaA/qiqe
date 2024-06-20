@@ -19,18 +19,14 @@
         overlay = (final: prev: {
           qiqe = (final.callPackage ./. { } // {
             # Qiqe services
-            auth-client = final.callPackage ./site/client/auth { };
-            auth-server = final.callPackage ./site/server/auth { };
-            interpreter = final.callPackage ./site/server/Interpreter { };
-            proxy = final.callPackage ./site/server/proxy { system = system; };
-
-            # Build tools
-            gen-cargo = final.callPackage ./nix/gen-cargo.nix { };
+            client = final.callPackage ./service/auth { };
+            codegen = final.callPackage ./service/Interpreter { };
+            proxy = final.callPackage ./service/proxy { system = system; };
           });
         });
 
         devEnv = pkgs.mkShell {
-          buildInputs = let nixPackages = with pkgs; [ nixfmt node2nix postgresql ]; in nixPackages;
+          buildInputs = let nixPackages = with pkgs; [ nixfmt node2nix ]; in nixPackages;
         };
         mergeEnvs = pkgs: envs:
           pkgs.mkShell (builtins.foldl' (a: v: {
@@ -43,38 +39,31 @@
 
       in rec {
         packages = {
-          auth-server = pkgs.qiqe.auth-server.packages;
-          auth-server-container = pkgs.qiqe.auth-server.container;
-          auth-client = pkgs.qiqe.auth-client.packages;
-          interpreter = pkgs.qiqe.interpreter.packages;
+          client = pkgs.qiqe.client.packages;
+          codegen = pkgs.qiqe.codegen.packages;
           proxy = pkgs.qiqe.proxy.packages;
         };
 
         devShells = {
           default = devEnv;
-          auth-client = pkgs.qiqe.auth-client.shell;
-          auth-server = pkgs.qiqe.auth-server.shell;
-          interpreter = pkgs.qiqe.interpreter.shell;
+          client = pkgs.qiqe.client.shell;
+          codegen = pkgs.qiqe.codegen.shell;
           proxy = pkgs.qiqe.proxy.shell;
         };
-        devShell = mergeEnvs pkgs (with devShells; [ auth-client auth-server ]);
+        devShell = mergeEnvs pkgs (with devShells; [ client codegen proxy ]);
 
         apps = {
           proxy = {
             type = "app";
             program = "${pkgs.qiqe.proxy.script}/bin/proxy";
           };
-          interpreter = {
+          codegen = {
             type = "app";
-            program = "${pkgs.qiqe.interpreter.script}/bin/interpreter";
+            program = "${pkgs.qiqe.codegen.script}/bin/interpreter";
           };
-          auth-server = {
+          client = {
             type = "app";
-            program = "${pkgs.qiqe.auth-server.script}/bin/auth-server";
-          };
-          auth-client = {
-            type = "app";
-            program = "${pkgs.qiqe.auth-client.script}/bin/auth-client";
+            program = "${pkgs.qiqe.client.script}/bin/client";
           };
           dev = {
             type = "app";
@@ -83,10 +72,10 @@
                 name = "dev";
                 runtimeInputs = [ pkgs.concurrently ];
                 text = ''
-                  echo "Starting development environment"
-                  echo "Press Ctrl+C to stop\n"
+                  printf "Starting development environment"
+                  printf "Press Ctrl+C to stop\n"
                   npx concurrently                                             \
-                    --names "proxy,auth-client,interpreter"                    \
+                    --names "codegen,client,proxy"                             \
                     --prefix-colors "bgMagenta.bold,bgBlue.bold,bgYellow.bold" \
                     --kill-others                                              \
                     --success first                                            \
@@ -95,40 +84,12 @@
                     --timestamp-format "HH:mm:ss"                              \
                     --timestamp-prefix "[{time}]"                              \
                     --command                                                  \
-                      "echo 'Interpreter'; ${apps.interpreter.program}"        \
-                      "echo 'Proxy'; ${apps.proxy.program}"                    \
-                      "echo 'Auth-Client'; ${apps.auth-client.program}"
+                      "echo 'Codegen'; ${apps.codegen.program}&"               \
+                      "echo 'Client'; ${apps.client.program}&"                 \
+                      "echo 'Proxy'; ${apps.proxy.program}&"
                 '';
               };
             in "${script}/bin/dev";
-          };
-
-          gen-cargo = {
-            type = "app";
-            program = "${pkgs.qiqe.gen-cargo.script}/bin/gen-cargo";
-          };
-
-          gen = {
-            type = "app";
-            program = let
-              script = pkgs.writeShellApplication {
-                name = "gen";
-                runtimeInputs = [ pkgs.concurrently ];
-                text = ''
-                  npx concurrently                                             \
-                    --names "gen-cargo"                                        \
-                    --prefix-colors "bgMagenta.bold"                            \
-                    --kill-others                                              \
-                    --success first                                            \
-                    --prefix "[{name}]"                                        \
-                    --prefix-length 3                                          \
-                    --timestamp-format "HH:mm:ss"                              \
-                    --timestamp-prefix "[{time}]"                              \
-                    --command                                                  \
-                      "echo 'Gen-Cargo'; ${apps.gen-cargo.program}"
-                '';
-              };
-            in "${script}/bin/gen";
           };
         };
       });
