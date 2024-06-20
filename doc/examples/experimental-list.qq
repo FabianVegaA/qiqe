@@ -1,0 +1,58 @@
+let nil  = false
+let head = \l. l true 
+let tail = \l. l false
+let pop  = \l i. if i then head l else tail l
+let push = \v l i. if i then v else l
+let singleton = \v i. if i then v else nil
+let is_empty  = eq nil
+
+let map = \f l. if is_empty l
+    then l
+    else push (f (head l)) <| map f (tail l)
+
+let filter = \p l. 
+    if is_empty (tail l) 
+        then if p (head l) then singleton (head l) else nil
+    else if p (head l) 
+        then push (head l) <| filter p (tail l)
+    else filter p (tail l)
+
+let foldl = \f i l. if is_empty l 
+    then i
+    else foldl f (f i (head l)) <| tail l
+
+let foldl1 = \f l. foldl f (head l) (tail l)
+
+let sum = foldl1 add
+
+let odd = flip mod 2 >> eq 0
+let even = odd >> not
+
+let xs = 
+    singleton 1
+    |> push 2
+    |> push 3
+    |> push 4
+    |> push 5
+    |> push 6
+
+xs  |> filter even
+    |> map print
+    
+print "--------"
+
+let range' = \start end step l. if lt start end 
+    then push start <| range' (add start step) end step l
+    else l
+
+let range = \start end step. range' start end step nil
+
+range 0 10 1
+    |> filter even
+    |> map print
+
+print "--------"
+
+let at = \l i. if is_empty l 
+    then nil 
+    else if eq i 0 then head l else at (tail l) (sub i 1)
