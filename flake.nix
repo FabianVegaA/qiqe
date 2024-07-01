@@ -17,11 +17,15 @@
         };
 
         overlay = (final: prev: {
-          qiqe = (final.callPackage ./. { } // {
+          qiqe = (final.callPackage ./. { } // rec {
+            # Configuration
+            env = final.callPackage ./nix/.env.nix { };
+            # Scripts
+            ngrok = final.callPackage ./nix/ngrok.nix { env = env; };
             # Qiqe services
             client = final.callPackage ./service/auth { };
             codegen = final.callPackage ./service/Interpreter { };
-            proxy = final.callPackage ./service/proxy { system = system; };
+            proxy = final.callPackage ./service/proxy { system = system; env=env; };
           });
         });
 
@@ -75,7 +79,7 @@
                   printf "Starting development environment"
                   printf "Press Ctrl+C to stop\n"
                   npx concurrently                                             \
-                    --names "codegen,client,proxy"                             \
+                    --names "client,proxy,codegen"                             \
                     --prefix-colors "bgMagenta.bold,bgBlue.bold,bgYellow.bold" \
                     --kill-others                                              \
                     --success first                                            \
@@ -83,13 +87,16 @@
                     --prefix-length 3                                          \
                     --timestamp-format "HH:mm:ss"                              \
                     --timestamp-prefix "[{time}]"                              \
-                    --command                                                  \
-                      "echo 'Codegen'; ${apps.codegen.program}&"               \
-                      "echo 'Client'; ${apps.client.program}&"                 \
-                      "echo 'Proxy'; ${apps.proxy.program}&"
+                    "echo 'Client'; ${apps.client.program}"                    \
+                    "echo 'Proxy'; ${apps.proxy.program}"                      \
+                    "echo 'Codegen'; ${apps.codegen.program}"                  
                 '';
               };
             in "${script}/bin/dev";
+          };
+          ngrok = {
+            type = "app";
+            program = pkgs.qiqe.ngrok.script;
           };
         };
       });

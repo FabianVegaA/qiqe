@@ -17,9 +17,5 @@ export default function MarkdownPage(props: {
     return <div>Loading...</div>;
   }
 
-  return (
-    <div className={props.className}>
-      <ReactMarkdown>{markdown}</ReactMarkdown>
-    </div>
-  );
+  return <ReactMarkdown>{markdown}</ReactMarkdown>;
 }
