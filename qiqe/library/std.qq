@@ -1,0 +1,41 @@
+# STD Library Qiqe
+# This is a library of functions and values used in the Qiqe programming language.
+# This library is imported by default in all Qiqe programs.
+
+# Basic
+let id = \x. x
+let const' = \x y. x
+let flip = \f x y. f y x
+
+# Booleans
+let and = eval "(x)=>(y)=>(x && y)"
+let or = eval "(x)=>(y)=>(x || y)"
+let not = eval "(x)=>(!x)"
+
+# Arithmetic
+let add = eval "(x)=>(y)=>(x + y)"
+let sub = eval "(x)=>(y)=>(x - y)"
+let mul = eval "(x)=>(y)=>(x * y)"
+let div = eval "(x)=>(y)=>(x / y)"
+let mod = eval "(x)=>(y)=>(x % y)"
+let pow = eval "(x)=>(y)=>(x ** y)"
+let succ = add 1
+let pred = sub 1
+
+# Comparison
+let eq = eval "(x)=>(y)=>(x === y)"
+let neq = not >> eq
+let lt = eval "(x)=>(y)=>(x < y)"
+let gt = eval "(x)=>(y)=>(x > y)"
+let lte = \x y. or (lt x y) (eq x y)
+let gte = \x y. or (gt x y) (eq x y)
+
+# String
+let show = eval "(x)=>(x.toString())"
+let concat = eval "(x)=>(y)=>(x + y)"
+let length = eval "(x)=>(x.length)"
+let to_upper = eval "(x)=>(x.toUpperCase())"
+let to_lower = eval "(x)=>(x.toLowerCase())"
+let trim = eval "(x)=>(x.trim())"
+let split = eval "(x)=>(y)=>(x.split(y))"
+let join = eval "(x)=>(y)=>(x.join(y))"

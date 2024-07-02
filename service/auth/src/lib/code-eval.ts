@@ -10,24 +10,29 @@ type OutputEval = {
 
 const runtime = ({code, imports}: Props): OutputEval => {
   const script = `
-  ${imports.join("\\n")}
-
+  ${imports.join("\\n").trim()};
   (() => {
     let stdout = "";
     let stderr = "";
   
     try {
-      function print(value) {
+      const eval__qq = eval;
+
+      function print__qq(value) {
         stdout += value.toString() + "\\n";
       }
-  
-      ${code.replaceAll(/([_a-zA-Z][_a-zA-Z0-9]*)'/gm, "$1__PRIME__")};
+      function throw__qq(value) {
+        stderr += value.toString() + "\\n";
+      }
+
+      ${code};
     } catch (e) {
       stderr += e.toString();
     } finally {
       return { stdout, stderr };
     }
   })();`;
+  console.debug(script);
   try {
     return eval(script);
   } catch (e) {

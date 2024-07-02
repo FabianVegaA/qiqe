@@ -1,0 +1,314 @@
+# STD Library Qiqe
+# This is a library of functions and values used in the Qiqe programming language.
+# This library is imported by default in all Qiqe programs.
+
+# Basic
+let id = \x. x
+let const = \x y. x
+let flip = \f x y. f y x
+
+# Booleans
+let and = eval "(x)=>(y)=>(x && y)"
+let or = eval "(x)=>(y)=>(x || y)"
+let not = eval "(x)=>(!x)"
+
+# Arithmetic
+let add = eval "(x)=>(y)=>(x + y)"
+let sub = eval "(x)=>(y)=>(x - y)"
+let mul = eval "(x)=>(y)=>(x * y)"
+let div = eval "(x)=>(y)=>(x / y)"
+let mod = eval "(x)=>(y)=>(x % y)"
+let pow = eval "(x)=>(y)=>(x ** y)"
+let succ = add 1
+let pred = sub 1
+
+# Comparison
+let eq = eval "(x)=>(y)=>(x === y)"
+let neq = not >> eq
+let lt = eval "(x)=>(y)=>(x < y)"
+let gt = eval "(x)=>(y)=>(x > y)"
+let lte = \x y. or (lt x y) (eq x y)
+let gte = \x y. or (gt x y) (eq x y)
+
+# String
+let concat = eval "(x)=>(y)=>(x + y)"
+let length = eval "(x)=>(x.length)"
+let to_upper = eval "(x)=>(x.toUpperCase())"
+let to_lower = eval "(x)=>(x.toLowerCase())"
+let trim = eval "(x)=>(x.trim())"
+let split = eval "(x)=>(y)=>(x.split(y))"
+let join = eval "(x)=>(y)=>(x.join(y))"
+
+# List
+
+# Check if a list is empty
+# @param l: list
+# @return: true if the list is empty, false otherwise
+# @example:
+#   is_empty [1, 2, 3]
+#   # Output: false
+#
+#   is_empty []
+#   # Output: true
+let is_empty = eq nil
+
+# List Head
+# @param l: list
+# @return: the head of the list
+# @example:
+#   head [1, 2, 3]
+#   # Output: 1
+let head = \l. if l then l true else nil
+
+# List Tail
+# @param l: list
+# @return: the tail of the list
+# @example:
+#   tail [1, 2, 3]
+#   # Output: [2, 3]
+let tail = \l. if l then l false else nil
+
+# List Constructors
+# @param h: head of the list
+# @param t: tail of the list
+# @return: a new List
+# @example:
+#     cons 1 (cons 2 (cons 3 nil))
+#     # Output: [1, 2, 3]
+let cons = \h t x. if x then h else t
+
+# Count the number of elements in a list
+# @param l: list
+# @return: the number of elements in the list
+# @example:
+#   cont [1, 2, 3, 4, 5]
+#   # Output: 5
+let cont = \l. if is_empty l then 0 else 1 + cont (tail l)
+
+# Map is a function that takes a function and a list and returns a new list with the function applied to each element of the input list.
+# @param f: function to apply
+# @param l: list
+# @return: a new list with the function applied to each element of the input list
+# @example:
+#   map (mul 2) [1, 2, 3, 4, 5]
+#   # Output: [2, 4, 6, 8, 10]
+let map = \f l. if is_empty l
+    then nil
+    else cons (f (head l)) (map f (tail l))
+
+# Filter is a function that takes a predicate and a list and returns a new list containing only the elements of the input list for which the predicate is true.
+# @param p: predicate function
+# @param l: list
+# @return: a new list containing only the elements of the input list for which the predicate is true
+# @example:
+#   filter (\x. lt x 3) [1, 2, 3, 4, 5]
+#   # Output: [1, 2]
+let filter = \p l. if is_empty l
+    then nil
+    else if p (head l)
+        then cons (head l) (filter p (tail l))
+        else filter p (tail l)
+
+# Foldl is a left-associative fold, which means that it applies the function to the first element of the list first, then the second, and so on, until it reaches the last element.
+# @param f: function to apply
+# @param z: initial value
+# @param l: list
+# @return: the result of the fold
+# @example:
+#   foldl add 0 [1, 2, 3, 4, 5]
+#   # Output: 15
+let foldl = \f z l. if is_empty l
+    then z
+    else foldl f (f z (head l)) (tail l)
+
+# Foldl1 is a left-associative fold, which means that it applies the function to the first element of the list first, then the second, and so on, until it reaches the last element.
+# @param f: function to apply
+# @param l: list
+# @return: the result of the fold
+# @example:
+#   foldl1 add [1, 2, 3, 4, 5]
+#   # Output: 15
+let foldl1 = foldl f (head l) (tail l)
+
+# TODO: Check if theses functions are corrects
+
+# Foldr is a right-associative fold, which means that it applies the function 
+# to the last element of the list first, then the second-to-last, and so on, 
+# until it reaches the first element.
+# @param f: function to apply 
+# @param z: initial value
+# @param l: list
+# @return: the result of the fold
+# @example:
+#   foldr add 0 [1, 2, 3, 4, 5]
+#   # Output: 15
+let foldr = \f z l. if is_empty l
+    then z
+    else f (head l) (foldr f z (tail l))
+
+# Foldr1 is a right-associative fold, which means that it applies the function
+# to the last element of the list first, then the second-to-last, and so on,
+# until it reaches the first element.
+# @param f: function to apply
+# @param l: list
+# @return: the result of the fold
+# @example:
+#   foldr1 add [1, 2, 3, 4, 5]
+#   # Output: 15
+let foldr1 = foldr f (head l) (tail l)
+
+# Reverse is a function that takes a list and returns a new list with the elements in reverse order.
+# @param l: list
+# @return: a new list with the elements in reverse order
+# @example:
+#   reverse [1, 2, 3, 4, 5]
+#   # Output: [5, 4, 3, 2, 1]
+let reverse = foldl (flip cons) nil
+
+# Merge is a function that takes two lists and returns a new list that is the concatenation of the two input lists.
+# @param l1: the first list
+# @param l2: the second list
+# @return: a new list that is the concatenation of the two input lists
+let merge = \l1 l2. foldr cons l2 l1
+
+# Append is a function that takes a value and a list and returns a new list with the value appended to the end of the input list.
+# @param x: the value to append
+# @param l: the list to append the value to
+# @return: a new list with the value appended to the end of the input list
+let append = \x l. merge l (cons x nil)
+
+# Zip is a function that takes two lists and returns a new list of pairs, where each pair contains the corresponding elements from the input lists.
+let zip = \l1 l2. if or (is_empty l1) (is_empty l2)
+    then nil
+    else cons (cons (head l1) (head l2)) (zip (tail l1) (tail l2))
+
+# Unzip is a function that takes a list of pairs and returns a new list of two lists, where the first list contains the first element of each pair and the second list contains the second element of each pair.
+let unzip = \l. if is_empty l
+    then cons nil nil
+    else cons (map head l) (map tail l)
+
+# Range is a function that takes three integers and returns a list of all the integers between the two input integers, inclusive, with the given step size.
+# @param start: the starting integer
+# @param end: the ending integer
+# @param step: the step size
+# @return: a list of all the integers between the two input integers
+# @example:
+#   range 1 5 2
+#   # Output: [1, 3, 5]
+let range = \start end step. if lt start end
+    then nil
+    else cons start (range (add start step) end)
+
+# Range is a function that takes two integers and returns a list of all the integers between the two input integers, inclusive.
+# @param start: the starting integer
+# @param end: the ending integer
+# @return: a list of all the integers between the two input integers
+# @example:
+#   range' 1 5
+#   # Output: [1, 2, 3, 4, 5]
+let range' = \start end. range start end 1
+
+# Repeat is a function that takes an integer and a value and returns a list of the given value repeated the given number of times.
+# @param n: the number of times to repeat the value
+# @param x: the value to repeat
+# @return: a list of the given value repeated the given number of times
+# @example:
+#   repeat 3 5
+#   # Output: [5, 5, 5]
+let repeat = \n x. if eq n 0
+    then nil
+    else cons x (repeat (pred n) x)
+
+# Take is a function that takes an integer and a list and returns a new list containing the first n elements of the input list.
+# @param n: the number of elements to take
+# @param l: the list to take elements from
+# @return: a new list containing the first n elements of the input list
+# @example:
+#   take 2 [1, 2, 3, 4, 5]
+#   # Output: [1, 2]
+let take = \n l. if or (eq n 0) (is_empty l)
+    then nil
+    else cons (head l) (take (pred n) (tail l))
+
+# Drop is a function that takes an integer and a list and returns a new list containing all but the first n elements of the input list.
+# @param n: the number of elements to drop
+# @param l: the list to drop elements from
+# @return: a new list containing all but the first n elements of the input list
+let drop = \n l. if or (eq n 0) (is_empty l)
+    then l
+    else drop (pred n) (tail l)
+
+# TakeWhile is a function that takes a predicate and a list and returns a new list containing the longest prefix of the input list for which the predicate is true.
+# @param p: the predicate function
+# @param l: the list to take elements from
+# @return: a new list containing the longest prefix of the input list for which the predicate is true
+# @example:
+#   take_while (\x. lt x 3) [1, 2, 3, 4, 5]
+#   # Output: [1, 2]
+let take_while = \p l. if is_empty l
+    then nil
+    else if p (head l)
+        then cons (head l) (take_while p (tail l))
+        else nil
+
+# DropWhile is a function that takes a predicate and a list and returns a new list containing all but the longest prefix of the input list for which the predicate is true.
+# @param p: the predicate function
+# @param l: the list to drop elements from
+# @return: a new list containing all but the longest prefix of the input list for which the predicate is true
+# @example:
+#   drop_while (\x. lt x 3) [1, 2, 3, 4, 5]
+#   # Output: [3, 4, 5]
+let drop_while = \p l. if is_empty l
+    then nil
+    else if p (head l)
+        then drop_while p (tail l)
+        else l
+
+let zip_with = \f l1 l2. if or (is_empty l1) (is_empty l2)
+    then nil
+    else cons (f (head l1) (head l2)) (zip_with f (tail l1) (tail l2))
+
+let unzip_with = \f l. if is_empty l
+    then cons nil nil
+    else cons (map (head l)) (unzip_with f (map (tail l)))
+
+let any = foldl or false >> map p
+
+let all = foldl and true >> map p
+
+let sum = foldl add 0
+
+let product = foldl mul 1
+
+let maximum = foldl1 (flip (if lt then id else const))
+
+let minimum = foldl1 (if lt then id else const)
+
+let scanl = \f z l. if is_empty l
+    then cons z nil
+    else cons z (scanl f (f z (head l)) (tail l))
+
+let scanl1 = \f l. scanl f (head l) (tail l)
+
+let scanr = \f z l. if is_empty l
+    then cons z nil
+    else cons (f (head l) (head (scanr f z (tail l)))) (scanr f z (tail l))
+
+let scanr1 = \f l. scanr f (head l) (tail l)
+
+# The `foreach` function applies a function to each element of a list.
+# It is equivalent to the `map` function, but with the arguments flipped.
+# @param f: function to apply
+# @param l: list
+# @return: the result of applying the function to each element of the list
+# @example:
+#   foreach [1, 2, 3] <| (\x.
+#       x |> add 2 |> mul 3 |> print
+#       )
+#
+#   # Output:
+#   # 9
+#   # 12
+#   # 15
+let foreach = flip map
+

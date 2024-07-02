@@ -16,12 +16,23 @@ export async function postCode(code: string): Promise<Response> {
 }
 
 export async function importLibs(dirs: string[]): Promise<string[]> {
-  // return fetch(CODEGEN_URI + "/import", {
-  //   method: "POST",
-  //   body: JSON.stringify({ dirs }),
-  //   headers: { "Content-Type": "application/json;charset=utf-8" },
-  // }).then((res) => res.json());
-  
-  // Dummy implementation
-  return [];
+  console.log("importLibs", dirs);
+  function* importLibs(
+    dirs: string[]
+  ): Generator<Promise<Response>, void, void> {
+    for (const dir of dirs) {
+      yield fetch(CODEGEN_URI + "/lib", {
+        method: "POST",
+        body: JSON.stringify({ filename: dir }),
+        headers: { "Content-Type": "application/json;charset=utf-8" },
+      });
+    }
+  }
+  return await Promise.all(
+    Array.from(importLibs(dirs)).map(async (res) => {
+      return await res.then((res) =>
+        res.status === 200 ? res.text() : Promise.reject(res)
+      );
+    })
+  );
 }
