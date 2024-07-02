@@ -9,7 +9,7 @@ service InterpreterService {
 
 // The InterpreterRequest message contains the code to be run.
 message InterpreterRequest {
-    string code = 1;
+    string code = 1; // TODO: This should be a stream of bytes.
 }
 
 // The InterpreterResponse message contains the output of the code.
