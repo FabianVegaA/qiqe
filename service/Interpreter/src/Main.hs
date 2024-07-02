@@ -7,9 +7,15 @@
 
 module Main where
 
+import GHC.IO.Handle.Types (Handle)
 import Data.Text (Text, pack, unpack)
 import Data.Maybe (fromMaybe)
-import Control.Monad.IO.Class (liftIO)
+import Control.Monad.IO.Class (liftIO, MonadIO)
+import System.IO (stdout)
+import System.Log.Logger
+import System.Log.Handler.Simple
+import System.Log.Handler (setFormatter)
+import System.Log.Formatter
 
 import Mu.GRpc.Server
 import Mu.Server
@@ -22,9 +28,24 @@ import Interpreter.Parser (parse, ParseError(..), AST)
 import Interpreter.Evaluator (eval)
 import Interpreter.Compiler (compile, CompileError(..))
 
+debug, info :: MonadIO m => String -> m ()
+info = liftIO . infoM "Codegen"
+debug = liftIO . debugM "Codegen"
+
+codegenStreamHandler :: IO (GenericHandler Handle)
+codegenStreamHandler = let 
+  formatter = simpleLogFormatter "[$time : $loggername : $prio] $msg"
+  in do 
+    handler <- streamHandler stdout DEBUG 
+    return $ setFormatter handler formatter
+
 main :: IO ()
 main = do
-  putStrLn "Starting server on port 50051"
+  handler <- codegenStreamHandler
+  updateGlobalLogger "Codegen" (addHandler handler)
+  updateGlobalLogger "Codegen" (setLevel DEBUG)
+
+  info "Starting the gRPC server on 0.0.0.0:50051"
   runGRpcApp msgProtoBuf 50051 server
 
 server :: ServerIO info InterpreterService _
@@ -32,9 +53,9 @@ server = singleService ( method @"run" $ run )
 
 run :: InterpreterRequest -> ServerErrorIO InterpreterResponse
 run (InterpreterRequest code) = alwaysOk $ do
-  _ <- liftIO $ putStrLn $ "Received code: " <> unpack code
+  debug $ "Received code: " <> unpack code
   let ResultCodeGen _output _err _status = runCodeGen code
-  _ <- liftIO $ putStrLn $ "Output: " <> unpack (fromMaybe mempty _output)
+  debug $ "Output: " <> unpack (fromMaybe _err _output)
   pure $ InterpreterResponse (fromMaybe "" _output) _err _status
 
 data ResultCodeGen a = ResultCodeGen

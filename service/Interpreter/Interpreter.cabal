@@ -32,3 +32,4 @@ executable Interpreter
     , mu-schema       >=0.3.1
     , text
     , mtl
+    , hslogger

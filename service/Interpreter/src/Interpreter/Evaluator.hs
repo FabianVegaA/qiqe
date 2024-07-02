@@ -1,7 +1,6 @@
 module Interpreter.Evaluator where
 
 import Interpreter.Parser
-import Control.Applicative (Alternative (..), liftA2)
 
 newtype Evaluator = Evaluator {runEvaluator :: Expr -> Expr}
 
@@ -20,7 +19,23 @@ evalExpr (LambdaExpr names expr) = foldr SingleLambdaExpr (evalExpr expr) names
 evalExpr (ApplyExpr expr exprs) = foldl SingleApplyExpr (evalExpr expr) (map evalExpr exprs)
 evalExpr op@(BinOpExpr _ _ _) = evalOpt op
 evalExpr (IfExpr e1 e2 e3) = IfExpr (evalExpr e1) (evalExpr e2) (evalExpr e3)
+evalExpr (ListExpr exprs) = evalList $ map evalExpr exprs
 evalExpr expr = expr -- TODO: Should I transform the literals to lambda expressions?
+
+evalList :: [Expr] -> Expr
+evalList [] = LitExpr NilLitExpr
+evalList (x:xs) = evalExpr $ ApplyExpr cons [x, evalList xs]
+  where
+    nil :: Expr
+    nil = LitExpr NilLitExpr
+
+    cons :: Expr
+    cons = evalExpr $ LambdaExpr ["h", "t", "x"] (
+        IfExpr 
+          (IdentifierExpr "x") 
+          (IdentifierExpr "h") 
+          (IdentifierExpr "t")
+      )
 
 evalOpt :: Expr -> Expr
 evalOpt (BinOpExpr op e1 e2) = let 

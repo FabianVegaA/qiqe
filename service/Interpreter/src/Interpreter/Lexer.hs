@@ -12,7 +12,6 @@ import Data.List (foldl1', foldl')
 import Data.Maybe (listToMaybe, maybeToList)
 import Interpreter.Token (Token (..), RawToken (..))
 
--- TODO: https://cronokirby.com/posts/2020/12/haskell-in-haskell-2
 
 data LexerError 
   = UnexpectedChar Char
@@ -233,6 +232,10 @@ token = oneOf
       , RParen `with` string ")"
       , LBrace `with` string "{"
       , RBrace `with` string "}"
+      , LBracket `with` string "["
+      , RBracket `with` string "]"
+      , Comma `with` string ","
+      , Semicolon `with` string ";"
       , LCompose `with` string "<<"
       , RCompose `with` string ">>"
       , LPipe `with` string "<|"
@@ -240,7 +243,7 @@ token = oneOf
       ]
     
     literal :: Lexer (Token, String)
-    literal = intLit <|> floatLit <|> boolLit <|> stringLit
+    literal = intLit <|> floatLit <|> boolLit <|> stringLit <|> nilLit
       where
         intLit :: Lexer (Token, String)
         intLit = fmap (\ n -> (IntLit (read n), n)) $ let
@@ -260,6 +263,9 @@ token = oneOf
 
         stringLit :: Lexer (Token, String)
         stringLit = fmap (\s -> (StringLit s, s)) $ (char '"' *> many (satisfies (/= '"')) <* char '"')
+
+        nilLit :: Lexer (Token, String)
+        nilLit = NilLit `with` string "nil"
 
     name :: Lexer (Token, String)
     name = identifier

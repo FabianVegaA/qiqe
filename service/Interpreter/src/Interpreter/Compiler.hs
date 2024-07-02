@@ -5,6 +5,7 @@ module Interpreter.Compiler where
 
 import Interpreter.Parser
 import Data.Text (Text, intercalate, pack)
+import qualified Data.Text as T
 import Text.Printf (printf)
 import Control.Monad (mapM)
 
@@ -58,6 +59,10 @@ evalLit (IntLitExpr i) = pack $ show i
 evalLit (FloatLitExpr f) = pack $ show f
 evalLit (BoolLitExpr b) = if b then "true" else "false"
 evalLit (StringLitExpr s) = pack $ printf "\"%s\"" s
+evalLit NilLitExpr = "null"
 
 evalName :: ValName -> Text
-evalName = pack
+evalName "eval" = pack "eval"
+evalName val = let 
+  suffix_name = pack $ printf "%s__qq" val
+  in T.replace "'" "__prime__" suffix_name

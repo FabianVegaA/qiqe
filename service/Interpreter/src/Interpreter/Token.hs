@@ -12,11 +12,15 @@ data Token
   | FloatLit Float    -- 1.0, 2.0, 3.0, ...
   | BoolLit Bool      -- true, false
   | StringLit String  -- e.g."hello world"
+  | NilLit            -- nil
   | Identifier String -- e.g. x, y, z, ...
   | LParen            -- (
   | RParen            -- )
   | LBrace            -- {
   | RBrace            -- }
+  | LBracket          -- [
+  | RBracket          -- ]
+  | Comma             -- ,
   | Semicolon         -- ;
   | LCompose          -- <<
   | RCompose          -- >>

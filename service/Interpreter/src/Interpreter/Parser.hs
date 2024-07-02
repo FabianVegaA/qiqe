@@ -17,6 +17,7 @@ data Expr
   | LetExpr ValName Expr
   | IfExpr Expr Expr Expr
   | BinOpExpr BinOp Expr Expr
+  | ListExpr [Expr]
   deriving (Show, Eq)
 
 type ValName = String
@@ -26,6 +27,7 @@ data Literal
   | FloatLitExpr Float
   | BoolLitExpr Bool
   | StringLitExpr String
+  | NilLitExpr
   deriving (Show, Eq, Ord)
 
 data BinOp
@@ -96,7 +98,7 @@ name =
     _ -> Nothing
 
 literal :: Parser Literal
-literal = intLit <|> floatLit <|> stringLit <|> boolLit
+literal = intLit <|> floatLit <|> stringLit <|> boolLit <|> nilLit
   where
     intLit :: Parser Literal
     intLit = pluck $ \case 
@@ -116,6 +118,11 @@ literal = intLit <|> floatLit <|> stringLit <|> boolLit
     boolLit :: Parser Literal
     boolLit = pluck $ \case
       BoolLit b -> Just (BoolLitExpr b)
+      _ -> Nothing
+
+    nilLit :: Parser Literal
+    nilLit = pluck $ \case
+      NilLit -> Just NilLitExpr
       _ -> Nothing
 
 definition :: Parser Definition
@@ -163,7 +170,7 @@ opsR sep p = liftA2 squash p (many (liftA2 (,) sep p))
        in foldl' (\acc (combine, a) -> combine a acc) start' annotated'
 
 expr :: Parser Expr
-expr = letExpr <|> ifExpr <|> lambdaExpr <|> binExpr
+expr = letExpr <|> ifExpr <|> lambdaExpr <|> binExpr <|> listExpr
   where
     ifExpr :: Parser Expr
     ifExpr = 
@@ -206,7 +213,10 @@ expr = letExpr <|> ifExpr <|> lambdaExpr <|> binExpr
         littExpr = fmap LitExpr literal
         nameExpr = fmap IdentifierExpr name
 
-
+    listExpr :: Parser Expr
+    listExpr = let
+      values = token LBracket *> sepBy1 expr (token Comma) <* token RBracket
+      in ListExpr <$> (values <|> pure [])
 
 ast :: Parser AST
 ast = fmap AST (braced definition)
