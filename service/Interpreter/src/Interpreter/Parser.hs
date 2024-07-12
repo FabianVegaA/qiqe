@@ -170,7 +170,7 @@ opsR sep p = liftA2 squash p (many (liftA2 (,) sep p))
        in foldl' (\acc (combine, a) -> combine a acc) start' annotated'
 
 expr :: Parser Expr
-expr = letExpr <|> ifExpr <|> lambdaExpr <|> binExpr <|> listExpr
+expr = letExpr <|> ifExpr <|> lambdaExpr <|> binExpr
   where
     ifExpr :: Parser Expr
     ifExpr = 
@@ -208,15 +208,19 @@ expr = letExpr <|> ifExpr <|> lambdaExpr <|> binExpr <|> listExpr
         extract (e : es) = ApplyExpr e es
 
     factor :: Parser Expr
-    factor = littExpr <|> nameExpr <|> parensed expr
+    factor = litExpr <|> nameExpr <|> parensed expr <|> bracketed expr
       where
-        littExpr = fmap LitExpr literal
+        litExpr = fmap LitExpr literal
         nameExpr = fmap IdentifierExpr name
 
-    listExpr :: Parser Expr
-    listExpr = let
-      values = token LBracket *> sepBy1 expr (token Comma) <* token RBracket
-      in ListExpr <$> (values <|> pure [])
+bracketed :: Parser Expr -> Parser Expr
+bracketed p = ListExpr [] <$ emptyBracketed <|> ListExpr <$> nonEmptyBracketed
+  where
+    emptyBracketed :: Parser [Expr]
+    emptyBracketed = token LBracket *> token RBracket *> pure []
+
+    nonEmptyBracketed :: Parser [Expr]
+    nonEmptyBracketed = token LBracket *> sepBy1 p (token Comma) <* token RBracket
 
 ast :: Parser AST
 ast = fmap AST (braced definition)
