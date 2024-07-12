@@ -1,11 +1,4 @@
-import {
-  AppBar,
-  Box,
-  Button,
-  Stack,
-  Toolbar,
-  Typography,
-} from "@mui/material";
+import { AppBar, Box, Button, Stack, Toolbar, Typography } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
 import { useContext } from "react";
@@ -34,7 +27,7 @@ export default function Navbar() {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "left",
             width: "100%",
           }}
         >
@@ -54,7 +47,7 @@ export default function Navbar() {
                 mr: 1,
                 pl: 1,
                 pb: 1,
-                alignSelf: 'flex-start'
+                alignSelf: "flex-start",
               }}
             />
 
@@ -87,7 +80,15 @@ export default function Navbar() {
               </Button>
             ))}
           </Stack>
-          <Box sx={{ ml: 1, justifyContent: "flex-end" }}>
+          <Box
+            sx={{
+              ml: 1,
+              pr: 1,
+              flexGrow: 1,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
             <IconButton onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === "dark" ? <LightMode /> : <DarkMode />}
             </IconButton>

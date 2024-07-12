@@ -1,6 +1,7 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AceEditor from "react-ace";
-import "brace/mode/lisp";
+// import "brace/mode/lisp";
+import "../lib/ace-qiqe-mode";
 import "brace/theme/tomorrow";
 import "brace/theme/tomorrow_night";
 
@@ -187,7 +188,7 @@ export default function Playground() {
             }}
           >
             <AceEditor
-              mode="lisp"
+              mode="qiqe"
               theme={
                 theme.palette.mode === "dark" ? "tomorrow_night" : "tomorrow"
               }
@@ -234,6 +235,7 @@ export default function Playground() {
                   fontSize="small"
                   color={status ? "primary" : "error"}
                   sx={{
+                    mt: 1,
                     display: "flex",
                     alignItems: "flex-start",
                     alignSelf: "self-start",
