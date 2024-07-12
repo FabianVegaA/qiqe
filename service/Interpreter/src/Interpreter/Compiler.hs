@@ -4,7 +4,7 @@
 module Interpreter.Compiler where
 
 import Interpreter.Parser
-import Data.Text (Text, intercalate, pack)
+import Data.Text (Text, intercalate, pack, unpack)
 import qualified Data.Text as T
 import Text.Printf (printf)
 import Control.Monad (mapM)
@@ -50,6 +50,11 @@ evalExpr (SingleApplyExpr expr1 expr2) = do
 evalExpr expr = Left $ UnevaluatedAST expr
 
 evalValDef :: ValueDefinition -> Either CompileError Text
+evalValDef (NameDefinition name (SingleLambdaExpr arg expr)) = do
+  let nameGen = unpack $ evalName name
+  let argGen  = unpack $ evalName arg
+  bodyGen <- evalExpr expr
+  pure . pack $ printf "function %s(%s){return %s}" nameGen argGen (unpack bodyGen)
 evalValDef (NameDefinition name expr) = do 
   assignGen <- evalExpr expr
   pure . pack $ printf "const %s=%s" (evalName name) assignGen
@@ -59,7 +64,7 @@ evalLit (IntLitExpr i) = pack $ show i
 evalLit (FloatLitExpr f) = pack $ show f
 evalLit (BoolLitExpr b) = if b then "true" else "false"
 evalLit (StringLitExpr s) = pack $ printf "\"%s\"" s
-evalLit NilLitExpr = "null"
+evalLit NilLitExpr = "undefined"
 
 evalName :: ValName -> Text
 evalName "eval" = pack "eval"
