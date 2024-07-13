@@ -1,52 +1,56 @@
+import { StatusCode } from "../hooks/useConsole";
+
 type Props = {
   code: string;
   imports: string[];
+  print: (output: string) => Promise<void>;
+  raise: (output: string, statusCode: Exclude<StatusCode, 0>) => Promise<void>;
 };
 
-type OutputEval = {
-  stdout: string;
-  stderr: string;
-};
-
-const runtime = ({code, imports}: Props): OutputEval => {
-  const script = `
-  ${imports.join("\\n").trim()};
-  (() => {
-    let stdout = "";
-    let stderr = "";
-  
-    try {
-      const eval__qq = eval;
-
-      function print__qq(value) {
-        stdout += value.toString() + "\\n";
-      }
-      function throw__qq(value) {
-        stderr += value.toString() + "\\n";
-      }
-
-      ${code};
-    } catch (e) {
-      stderr += e.toString();
-    } finally {
-      return { stdout, stderr };
-    }
-  })();`;
-  console.debug(script);
+const runtime = ({ code, imports, print, raise }: Props) => {
   try {
-    return eval(script);
+    const script = `
+    /*
+    * Execute the user code and return the output
+    * @returns {string} The output of the user code
+    * @throws {Error} If the user code throws an error
+    */
+    function execute() {
+      // Output buffer
+      let output = "";
+
+      // Imports from the user
+      ${imports.join("\\n").trim()};
+
+      // Runtime functions
+      const print__qq = (value) => { output += value };
+      const println__qq = (value) => { output += value + "\\n" };
+      const raise__qq = (value) => { throw new Error(value) };
+
+      // User code
+      ${code};
+
+      // Return the output
+      return output;
+    }
+    execute();
+    `;
+    console.debug(script);
+    print(eval(script));
   } catch (e) {
-    return { stdout: "", stderr: (e as Error).toString() };
+    raise(`Error: ${(e as Error).message}\n`, 1);
   }
 };
 
-const codeEvaluate = ({ code, imports }: Props): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const { stdout, stderr } = runtime({ code: code, imports });
-    if (stderr) {
-      reject(stderr);
-    }
-    resolve(stdout);
+const codeEvaluate = ({
+  code,
+  imports,
+  print,
+  raise,
+}: Props): Promise<void> => {
+  return new Promise((resolve) => {
+    runtime({ code, imports, print, raise });
+    resolve();
   });
 };
 

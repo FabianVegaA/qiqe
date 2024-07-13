@@ -23,6 +23,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CodeIcon from "@mui/icons-material/Code";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { useTheme } from "@mui/material/styles";
+import { useConsole } from "../hooks/useConsole";
 
 type Result = {
   id: number;
@@ -53,6 +54,8 @@ export default function Playground() {
   const [result, setResult] = useState([] as Result[]);
   const [importOptions, setImportOptions] = useState([base] as ImportOption[]);
   const [importeds, setImporteds] = useState([] as Import[]);
+
+  const { console, print, raise } = useConsole();
 
   useEffect(() => {
     const fetchImports = async () => {
@@ -98,27 +101,11 @@ export default function Playground() {
         }
 
         codeEvaluate({
+          print,
+          raise,
           code: data.result,
           imports: importeds.map((i) => i.target),
-        })
-          .then((stdout: string) => {
-            addResult({
-              id: data.id,
-              status: data.status,
-              error: data.error,
-              result: stdout,
-              createdAt: data.createdAt,
-            });
-          })
-          .catch((stderr: string) => {
-            addResult({
-              id: data.id,
-              status: data.status && !stderr,
-              error: data.error || stderr,
-              result: "",
-              createdAt: data.createdAt,
-            });
-          });
+        });
       })
       .catch(setErr);
   };
@@ -227,40 +214,40 @@ export default function Playground() {
               height: "100vh",
             }}
           >
-            {result.map(({ status, error, result, createdAt }) => (
-              <ListItem
-              key={createdAt.toString()}
-              sx={{ pt: 0 }}>
-                <CircleIcon
-                  fontSize="small"
-                  color={status ? "primary" : "error"}
-                  sx={{
-                    mt: 1,
-                    display: "flex",
-                    alignItems: "flex-start",
-                    alignSelf: "self-start",
-                    justifyContent: "center",
-                    fontSize: "14px",
-                    borderRadius: "0",
-                    background: "transparent",
-                  }}
-                />
-                <Typography
-                  component="pre"
-                  noWrap
-                  sx={{
-                    ml: 2,
-                    width: 1,
-                    scrollbarWidth: "initial",
-                    fontFamily: "monospace",
-                    textOverflow: "inherit",
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {status ? result.toString() : error.toString()}
-                </Typography>
-              </ListItem>
-            ))}
+            {Array.from(console.entries()).map(
+              ([index, [statusCode, output]]) => (
+                <ListItem key={index} sx={{ pt: 0 }}>
+                  <CircleIcon
+                    fontSize="small"
+                    color={statusCode == 0 ? "primary" : "error"}
+                    sx={{
+                      mt: 1,
+                      display: "flex",
+                      alignItems: "flex-start",
+                      alignSelf: "self-start",
+                      justifyContent: "center",
+                      fontSize: "14px",
+                      borderRadius: "0",
+                      background: "transparent",
+                    }}
+                  />
+                  <Typography
+                    component="pre"
+                    noWrap
+                    sx={{
+                      ml: 2,
+                      width: 1,
+                      scrollbarWidth: "initial",
+                      fontFamily: "monospace",
+                      textOverflow: "inherit",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {output}
+                  </Typography>
+                </ListItem>
+              )
+            )}
           </List>
         </Stack>
       </Stack>
