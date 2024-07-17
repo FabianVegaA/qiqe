@@ -1,4 +1,4 @@
-import { StatusCode } from "../hooks/useConsole";
+import { StatusCode } from "../hooks/useShell";
 
 type Props = {
   code: string;

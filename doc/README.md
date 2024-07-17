@@ -15,22 +15,20 @@
       - [Pipe](#pipe)
     - [Control Flow](#control-flow)
     - [Types](#types)
-  - [Prelude](#prelude)
-    - [Functions](#functions-1)
-      - [Basic](#basic)
-      - [Comparison](#comparison)
-      - [Logic](#logic)
-      - [Arithmetic](#arithmetic)
-      - [String](#string)
+      - [List](#list)
+  - [Libraries](#libraries)
+  - [Examples](#examples)
   - [Contributing in the design](#contributing-in-the-design)
 
 ## Introduction
 
-Qiqe is a general purpose functional language. It is inspired by Haskell, Elm and Lisp. It is a compiled language that compiles to javascript. It is designed to be used in the browser.
+Qiqe is a general purpose functional language. It is based in untyped lambda calculus. It is a compiled language that compiles to JavaScript. It is designed to be used in the browser.
 
 ## Syntax
 
 ### Comments
+
+Only the line comments are allowed. The syntax is `#`. The comment starts with `#` and ends at the end of the line.
 
 ```qiqe
 # This is a comment
@@ -121,124 +119,55 @@ else 2 # Error because the indentation is different
 
 This language is a non-typed language. It means that you don't have to specify the type of a variable or a function. And it also means that you can use a variable or a function in any context. It language compiles to javascript. So, it is a dynamically typed language.
 
-The types are:
+#### List
 
-- Integer
-- Float
-- Boolean
-- String
-
-> TODO: Add iterable type like List or Tuple. The implementation of the iterable type is not decided yet, but it will be thought using cons operator.
-
-## Prelude
-
-The prelude is a module that is imported by default in every file. It contains the basic functions.
-
-### Functions
-
-#### Basic
-
-- `id`: Identity function
+The list in Qiqe are like linked lists, composed by `cons` and `nil`. The `cons` is a function that takes tree arguments: the head, the tail and a boolean value, example:
 
 ```qiqe
-id x # Returns x
+let cons = \head tail x. if x then head else tail
+let head = \list. list true
+let tail = \list. list false
+let null = \list. eq list nil
+
+# An example of a list
+let list = cons 1 (cons 2 (cons 3 nil))
+
+head list # Returns 1
+tail list # Returns cons 2 (cons 3 nil)
 ```
 
-- `constant`: Constant function that returns the first argument
+Qiqe has a syntax sugar for lists. The syntax is `[1, 2, 3]`. The previous example can be written as:
 
 ```qiqe
-constant 1 2 # Returns 1
+let list = [1, 2, 3]
 ```
 
-- `flip`: Function that flips the order of the arguments of a function
+> For now, the nil is a value and it is not implemented as a lambda calculus function.
 
-```qiqe
-let constantFlipped = flip constant
-constantFlipped 1 2 # Returns 2
-```
+## Libraries
 
-#### Comparison
+- [Base](./../qiqe/library/std.qq): This library contains the basic functions.
+- [List](../qiqe/library/list.qq): This library contains the functions for lists.
 
-- `eq`: Equality function
-- `neq`: Inequality function
-- `lt`: Less than function
-- `gt`: Greater than function
-- `lte`: Less than or equal function
-- `gte`: Greater than or equal function
+## Examples
 
-```qiqe
-eq 1 1 # Returns true
-neq 1 1 # Returns false
-lt 1 2 # Returns true
-gt 1 2 # Returns false
-lte 1 2 # Returns true
-gte 1 2 # Returns false
-```
+- Hello World:
+  ```qiqe
+  print "Hello, World!"
+  ```
+- Fibonacci:
 
-#### Logic
+  ```qiqe
+  let fib = \n. if eq n 0
+    then 0
+    else if eq n 1
+      then 1
+      else add (fib (sub n 1)) (fib (sub n 2))
+  ```
 
-- `not`: Negation function
-- `and`: Logical and
-- `or`: Logical or
-
-```qiqe
-not true # Returns false
-and true false # Returns false
-or true false # Returns true
-```
-
-#### Arithmetic
-
-- `add`: Addition function
-- `sub`: Subtraction function
-- `mul`: Multiplication function
-- `div`: Division function
-- `mod`: Modulus function
-- `pow`: Power function
-- `sqrt`: Square root function
-- `abs`: Absolute value function
-- `succ`: Successor to a number
-- `pred`: Predecessor to a number
-- `neg`: Negation function
-- `min`: Minimum value between two numbers
-- `max`: Maximum value between two numbers
-- `floor`: Floor function
-- `ceil`: Ceil function
-- `round`: Round to the nearest integer, e.g. 1.5 -> 2, 1.4 -> 1
-- `truncate`: Round to the nearest integer towards zero, e.g. 1.5 -> 1, 1.4 -> 1
-
-```qiqe
-add 1 2 # Returns 3
-sub 1 2 # Returns -1
-mul 1 2 # Returns 2
-div 1 2 # Returns 0.5
-mod 1 2 # Returns 1
-pow 2 3 # Returns 8
-sqrt 4 # Returns 2
-abs -1 # Returns 1
-succ 1 # Returns 2
-pred 1 # Returns 0
-neg 1 # Returns -1
-min 1 2 # Returns 1
-max 1 2 # Returns 2
-floor 1.5 # Returns 1
-ceil 1.5 # Returns 2
-round 1.5 # Returns 2
-truncate 1.5 # Returns 1
-```
-
-#### String
-
-- `concat`: Concatenate two strings
-- `show`: It converts a value to a string
-- `length`: It returns the length of a string. If the argument is not a string, it uses show to convert it to a string.
-
-```qiqe
-concat "Hello" " World!" # Returns "Hello World!"
-show 1 # Returns "1"
-length "Hello" # Returns 5
-```
+- [Stair](./examples/stairs.qq)
+- [Triangle](./examples/triangle.qq)
 
 ## Contributing in the design
 
-If you want to contribute in the design of the language, you can open an issue or a pull request. You can also contact me at [Twitter](https://twitter.com/fabianmativeal).
+This is a experimental language that born in my free time, and it is not finished yet, but if you want to contribute in the design of the language, you can open an issue or a pull request. You can also contact me at [Twitter](https://twitter.com/fabianmativeal).

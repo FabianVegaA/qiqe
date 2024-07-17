@@ -23,7 +23,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CodeIcon from "@mui/icons-material/Code";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { useTheme } from "@mui/material/styles";
-import { useConsole } from "../hooks/useConsole";
+import { useShell } from "../hooks/useShell";
 
 type Result = {
   id: number;
@@ -51,15 +51,23 @@ type Import = {
 export default function Playground() {
   const theme = useTheme();
   const [code, setCode] = useState("");
-  const [result, setResult] = useState([] as Result[]);
-  const [importOptions, setImportOptions] = useState([base] as ImportOption[]);
   const [importeds, setImporteds] = useState([] as Import[]);
 
-  const { console, print, raise } = useConsole();
+  const { shell, print, raise, clear } = useShell();
+
+  const defaultImports = [
+    base,
+    {
+      label: "list",
+      dir: "qiqe/library/list.qq",
+    },
+  ];
 
   useEffect(() => {
     const fetchImports = async () => {
-      const compiledBase = await importLibs([base.dir]);
+      const compiledBase = await importLibs(
+        defaultImports.map((lib) => lib.dir)
+      );
       if (!compiledBase) return;
       setImporteds([{ label: base.label, target: compiledBase.join("\n") }]);
     };
@@ -75,28 +83,15 @@ export default function Playground() {
     ]);
   };
 
-  const addResult = (res: Result) => setResult([res, ...result]);
-  const clearResult = () => setResult([]);
-
-  const setErr = (err: string) => {
-    addResult({
-      id: result.length,
-      status: false,
-      error: err || "Something went wrong. Please try again later.",
-      result: "",
-      createdAt: new Date().toDateString(),
-    });
-  };
-
   const runCode = async (code: string) => {
-    const res = await postCode(code).catch(setErr);
+    const res = await postCode(code).catch((reason) => raise(reason, 1));
     if (!res) return;
 
     await res
       .json()
       .then((data: Result) => {
         if (!data.status) {
-          addResult(data);
+          raise(data.error, 1);
           return;
         }
 
@@ -107,7 +102,7 @@ export default function Playground() {
           imports: importeds.map((i) => i.target),
         });
       })
-      .catch(setErr);
+      .catch((reason) => raise(reason, 1));
   };
 
   const handleRun = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -132,14 +127,14 @@ export default function Playground() {
           <IconButton aria-label="run" size="large" onClick={handleRun}>
             <PlayArrowIcon fontSize="inherit" />
           </IconButton>
-          <IconButton aria-label="delete" size="large" onClick={clearResult}>
+          <IconButton aria-label="delete" size="large" onClick={clear}>
             <DeleteIcon fontSize="inherit" />
           </IconButton>
 
           <Autocomplete
             multiple
             id="import-select"
-            options={[base]}
+            options={defaultImports}
             getOptionLabel={(option) => option.label}
             isOptionEqualToValue={(option, value) =>
               option.label === value.label
@@ -214,7 +209,7 @@ export default function Playground() {
               height: "100vh",
             }}
           >
-            {Array.from(console.entries()).map(
+            {Array.from(shell.entries()).map(
               ([index, [statusCode, output]]) => (
                 <ListItem key={index} sx={{ pt: 0 }}>
                   <CircleIcon
