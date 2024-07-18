@@ -8,10 +8,10 @@ ace.define(
       require("./text_highlight_rules").TextHighlightRules;
 
     var QiqeHighlightRules = function () {
-      var keywordControl = "if|then|else|let";
+      var keywordControl = "if|then|else|let|in";
       var constantLanguage = "true|false|nil";
       var supportFunctions =
-        "print|throw|eval|eq|neq|lt|gt|lte|gte|and|or|not|null";
+        "print|println|throw|eval|eq|neq|lt|gt|lte|gte|and|or|not|null";
 
       var keywordMapper = this.createKeywordMapper(
         {

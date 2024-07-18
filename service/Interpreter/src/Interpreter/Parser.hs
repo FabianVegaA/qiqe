@@ -15,6 +15,7 @@ data Expr
   | ApplyExpr Expr [Expr]
   | SingleApplyExpr Expr Expr
   | LetExpr ValName Expr
+  | LetInExpr [(ValName, Expr)] Expr
   | IfExpr Expr Expr Expr
   | BinOpExpr BinOp Expr Expr
   | ListExpr [Expr]
@@ -170,7 +171,7 @@ opsR sep p = liftA2 squash p (many (liftA2 (,) sep p))
        in foldl' (\acc (combine, a) -> combine a acc) start' annotated'
 
 expr :: Parser Expr
-expr = letExpr <|> ifExpr <|> lambdaExpr <|> binExpr
+expr = letExpr <|> letInExpr <|> ifExpr <|> lambdaExpr <|> binExpr
   where
     ifExpr :: Parser Expr
     ifExpr = 
@@ -188,6 +189,12 @@ expr = letExpr <|> ifExpr <|> lambdaExpr <|> binExpr
       liftA2 LetExpr 
         (token Let *> name)
         (token Assign *> expr)
+
+    letInExpr :: Parser Expr
+    letInExpr = 
+      LetInExpr
+        <$> (token Let *> sepBy1 (liftA2 (,) name (token Assign *> expr)) (token Semicolon))
+        <*> (token In *> expr)
 
     binExpr :: Parser Expr
     binExpr = pipe

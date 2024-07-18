@@ -2,6 +2,7 @@ module Interpreter.Token where
 
 data Token 
   = Let               -- let
+  | In                -- in
   | If                -- if
   | Then              -- then
   | Else              -- else

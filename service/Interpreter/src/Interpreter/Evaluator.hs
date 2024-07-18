@@ -20,7 +20,14 @@ evalExpr (ApplyExpr expr exprs) = foldl SingleApplyExpr (evalExpr expr) (map eva
 evalExpr op@(BinOpExpr _ _ _) = evalOpt op
 evalExpr (IfExpr e1 e2 e3) = IfExpr (evalExpr e1) (evalExpr e2) (evalExpr e3)
 evalExpr (ListExpr exprs) = evalList $ map evalExpr exprs
+evalExpr (LetInExpr defs expr) = evalLetIn defs expr
 evalExpr expr = expr -- TODO: Should I transform the literals to lambda expressions?
+
+evalLetIn :: [(ValName, Expr)] -> Expr -> Expr
+evalLetIn defs expr = foldr (uncurry evalLetIn') (evalExpr expr) defs
+  where
+      evalLetIn' :: ValName -> Expr -> Expr -> Expr
+      evalLetIn' name expr result = SingleApplyExpr (SingleLambdaExpr name result) (evalExpr expr)
 
 evalList :: [Expr] -> Expr
 evalList [] = LitExpr NilLitExpr

@@ -218,6 +218,7 @@ token = oneOf
     keyword :: Lexer (Token, String)
     keyword = oneOf
       [ Let `with` string "let"
+      , In `with` string "in"
       , If `with` string "if"
       , Then `with` string "then"
       , Else `with` string "else"
