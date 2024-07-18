@@ -39,3 +39,41 @@ let to_lower = eval "(x)=>(x.toLowerCase())"
 let trim = eval "(x)=>(x.trim())"
 let split = eval "(x)=>(y)=>(x.split(y))"
 let join = eval "(x)=>(y)=>(x.join(y))"
+
+# Basic 
+let odd = \n. eq (mod n 2) 0
+let even = not << odd
+
+# Repeat a string n times
+# @param str: string to repeat
+# @param n: number of times to repeat
+# @return: string
+let repeat_str = \str n. if lte n 1 
+    then str
+    else concat str (repeat_str str (sub n 1))
+
+# Right align a string with a given character
+# @param s: string to align
+# @param n: length of the aligned string
+# @param c: character to use for alignment
+# @return: aligned string 
+let left_align = \s n c. concat (repeat_str c n) s
+
+# Right align a string with spaces
+# @param s: string to align
+# @param n: length of the aligned string
+# @return: aligned string
+let left_align' = \s n. left_align s n " "
+
+# Right align a string with a given character
+# @param s: string to align
+# @param n: length of the aligned string
+# @param c: character to use for alignment
+# @return: aligned string
+let right_align = \s n c. concat s (repeat_str c n)
+
+# Right align a string with spaces
+# @param s: string to align
+# @param n: length of the aligned string
+# @return: aligned string
+let right_align' = \s n. right_align s n " "
