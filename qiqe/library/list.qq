@@ -35,6 +35,14 @@ let tail = \l. if null l then nil else l false
 #     # Output: [1, 2, 3]
 let cons = \h t x. if x then h else t
 
+# List Singleton
+# @param x: element of the list
+# @return: a new List with a single element
+# @example:
+#   singleton 1
+#   # Output: [1]
+let singleton = \x. cons x nil
+
 # Count the number of elements in a list
 # @param l: list
 # @return: the number of elements in the list
