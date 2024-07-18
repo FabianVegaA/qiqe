@@ -1,45 +1,47 @@
-# Odd number
-# @param n: Number to check
-# @return: True if n is odd, false otherwise
-let odd = \n. eq (mod n 2) 0
-
-# Even number
-# @param n: Number to check
-# @return: True if n is even, false otherwise
-let even = not << odd
-
-# Factorial
-# @param n: Number to calculate the factorial of
-# @return: Factorial of n
-let factorial = \n. if eq n 0 then 1 else foldl1 mul (range' 1 n)
-
-# Repeat a string n times
-# @param str: String to repeat
-# @param n: Number of times to repeat
-# @return: Repeated string
-let repeat_str = \str n. if lte n 1 then str else concat str (repeat_str str (sub n 1))
-
-# Intercalate a list of strings with a separator
-# @param l: List of strings
-# @param c: Separator
-# @return: Intercalated string
-let intercalate = \l c. foldl1 (\acc x. concat (concat acc (show c)) x) l 
-
 let binomial_coefficient = \n k. 
-    div (factorial n) (mul (factorial k) (factorial (sub n k)))
+    div (factorial n) 
+        (mul (factorial k) (factorial (sub n k)))
 
-let pascal_triangle = \l.
-    for_each (range'' l) (\n. 
-        for_each (range'' n) (binomial_coefficient n)
+let pascal_triangle = \size.
+    for_each (range'' size) (\n. 
+        for_each (range'' n) (\k. 
+            binomial_coefficient n k
         )
+    )
 
-let sierpinski_triangle = \n. 
-    for_each (pascal_triangle n) (map (\a_k. if even a_k then "▲" else " "))
+let sierpinski_triangle = \size. 
+    for_each (pascal_triangle size) (\row. 
+        for_each row (\coefficient. 
+            if even coefficient then "▲ " else "  "
+        )
+    )
 
-let print_sierpinski_triangle =  \n.
+let print_sierpinski_triangle = \n.
     map (foldl1 concat) (sierpinski_triangle n)
-    |> map (\line. concat (repeat_str " " (succ (sub n (length line)))) line)
+    |> map (\line. left_align' line (pred (sub (div (length line) 2) (succ n))))
     |> flip intercalate "\n"
-    |> print
+    |> println
 
-print_sierpinski_triangle 5
+print_sierpinski_triangle 25
+
+
+
+
+
+
+
+let odd = \n. eq (mod n 2) 0
+let even = not << odd
+let factorial = \n. 
+    if eq n 0 then 1 else foldl1 mul (range' 1 n)
+let repeat_str = \str n. if lte n 1 
+    then str
+    else concat str (repeat_str str (sub n 1))
+    
+let left_align = \s n c. concat (repeat_str c n) s
+let left_align' = \s n. left_align s n " "
+    
+let intercalate = \l c. 
+    foldl1 (\acc x. concat (concat acc (show c)) x) l 
+
+

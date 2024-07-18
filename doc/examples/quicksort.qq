@@ -1,0 +1,13 @@
+let quicksort = \list. 
+    if null list then nil
+    else let
+      pivot   = head list;
+      lesser  = filter (flip lt pivot) <| tail list;
+      greater = filter (flip gte pivot) <| tail list
+    in foldl1 merge 
+        [ quicksort lesser
+        , singleton pivot
+        , quicksort greater
+        ]
+
+for_each (quicksort [9,8,7,6,5,4,3,2,1]) println
