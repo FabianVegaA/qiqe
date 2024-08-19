@@ -20,7 +20,9 @@ let div = eval "(x)=>(y)=>(x / y)"
 let mod = eval "(x)=>(y)=>(x % y)"
 let pow = eval "(x)=>(y)=>(x ** y)"
 let succ = add 1
-let pred = sub 1
+let pred = (flip sub) 1
+let max = \x y. if gt x y then x else y
+let min = \x y. if lt x y then x else y
 
 # Comparison
 let eq = eval "(x)=>(y)=>(x === y)"
@@ -77,3 +79,11 @@ let right_align = \s n c. concat s (repeat_str c n)
 # @param n: length of the aligned string
 # @return: aligned string
 let right_align' = \s n. right_align s n " "
+
+# Logging
+let debug = show >> (\x. x |> eval "(x)=>{println__qq('DEBUG: ' + x);return x}")
+let info  = show >> (\x. x |> eval "(x)=>{println__qq('INFO: '  + x);return x}")
+let warn  = show >> (\x. x |> eval "(x)=>{println__qq('WARN: '  + x);return x}")
+let error = show >> (\x. x |> eval "(x)=>{println__qq('ERROR: ' + x);return x}")
+
+

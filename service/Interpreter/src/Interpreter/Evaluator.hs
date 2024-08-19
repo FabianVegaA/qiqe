@@ -23,11 +23,43 @@ evalExpr (ListExpr exprs) = evalList $ map evalExpr exprs
 evalExpr (LetInExpr defs expr) = evalLetIn defs expr
 evalExpr expr = expr -- TODO: Should I transform the literals to lambda expressions?
 
+
+-- | Evaluate let in expressions
+-- | Case for single let in expression
+-- |  let x = 1 in x + 1 => (λx.x + 1) 1 => 1 + 1 => 2
+-- | Case for multiple let in expressions
+-- |  let x = 1; y = 2 in x + y => (λx. (λy. x + y) 2) 1 => (λy. 1 + y) 2 => 1 + 2 => 3
+-- | Case for single let in expression with recursion
+-- |  This use the applicative order U combinator to avoid infinite recursion
+-- |  let f = λx. f x in f 1 => ((λu. u u)(λf. (λx. (f f) x))) 1
+-- TODO: Implement the mutual recursion
 evalLetIn :: [(ValName, Expr)] -> Expr -> Expr
 evalLetIn defs expr = foldr (uncurry evalLetIn') (evalExpr expr) defs
   where
+      apply :: Expr -> Expr -> Expr
+      apply e1 e2 = SingleApplyExpr e1 e2
+
+      lambda :: String -> Expr -> Expr
+      lambda arg e1 = SingleLambdaExpr arg e1
+
+      get :: String -> Expr
+      get name = IdentifierExpr name
+
+      delta :: Expr
+      delta = lambda "u" $ apply (get "u") (get "u")
+
+      fix :: ValName -> Expr -> Expr
+      fix name expr = apply delta $  
+        lambda "self" $ apply
+          (lambda name expr)
+          (lambda "x" $ apply (apply (get "self") (get "self")) $ get "x")
+
       evalLetIn' :: ValName -> Expr -> Expr -> Expr
-      evalLetIn' name expr result = SingleApplyExpr (SingleLambdaExpr name result) (evalExpr expr)
+      evalLetIn' name expr result = case expr of
+        (LambdaExpr _ _) ->
+          apply (lambda name result) $ fix name (evalExpr expr)
+        _ -> apply (lambda name result) (evalExpr expr)
+
 
 evalList :: [Expr] -> Expr
 evalList [] = LitExpr NilLitExpr
