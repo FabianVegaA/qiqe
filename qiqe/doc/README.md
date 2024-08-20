@@ -167,11 +167,14 @@ At the moment, let-in only allows the definitions of simple variables and recurs
 
 ```qiqe
 let c = let
-  a = 1
+  a = 1;
   b = 2
   in add a b
 print c # 3
 ```
+
+> For assignment of multiple variables is necessary to use the `;` to separate the definitions.
+> **TODO:** It will be implemented a syntax sugar for multiple definitions.
 
 2. Recursive functions:
 

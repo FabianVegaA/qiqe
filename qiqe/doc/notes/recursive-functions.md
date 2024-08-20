@@ -1,16 +1,17 @@
 # Recursive functions in let-in expressions
 
-When I had implementing the `let-in` expression in Qiqe my first idea was a simple transformation such as:
+When I was implementing the `let-in` expression in Qiqe my first idea was a simple transformation such as:
 
 ```qiqe
-let a = 
-    let f = \x. x 
+let a =
+    let f = \x. x
     in f 1
 
 # to
 
 a = (\f. f 1) (\x. x)
 ```
+
 For multiple definitions, I thought about a similar transformation:
 
 ```qiqe
@@ -27,7 +28,7 @@ c = (\a b. add a b) 1 2
 
 And so on...
 
-But what about recursive functions? 
+However, what about recursive functions?
 If I use the same approach as above, I will have a problem. For example:
 
 ```qiqe
@@ -38,16 +39,18 @@ let f = let
 # to
 let f = (\g. g 1) (\x. g x)
 ```
-If apply the reduction steps, I will have:
+
+If I apply the reduction steps, I will have:
 
 ```qiqe
 f = (\g. g 1) (\x. g x)
   = (\x. g x) 1
   = g 1
 ```
-Where did the `g` go?
 
-I had to think a little more about it. The easiest way is to use environment variables, but I wanted to implement it using only lambda calculus, the performance is not a concern at the moment. The way I found was to use a **fixed-point combinator**, in this case, the **Y combinator**.
+What happened to `g`? Where is the definition of `g`?
+
+I needed to think more deeply about this issue. While using environment variables would be the easiest approach, I wanted to implement this using only lambda calculus, as performance is not a concern at this stage. The solution I discovered was to use a fixed-point combinator
 
 The Y combinator is a fixed-point combinator that allows the definition of recursive functions in lambda calculus. It is defined as:
 
@@ -75,7 +78,7 @@ let sum = let
 
 # to
 let sum = (\go. go 0) ((\u. (u u)) (\self. (\go. <exp>)) (\x. (self self) x))
-#          ^^^^^^^^^   ^^^^^^^^^^               ^^^^^    ^^^^^^^^^^^^^^^^^
+#          ^^^^^^^^^   ^^^^^^^^^^                ^^^^^    ^^^^^^^^^^^^^^^^^
 #           Evaluated     delta             The recursive     An auxiliary
 #          expression   combinator             function        function
 #              (1)         (2)                    (3)             (4)
@@ -84,7 +87,8 @@ let sum = (\go. go 0) ((\u. (u u)) (\self. (\go. <exp>)) (\x. (self self) x))
 # (3) The body of the recursive function is passed to the delta combinator
 # (4) This is the auxiliary function that will be used for modification
 #     of the recursive function with the delta combinator
-
 ```
 
+## References
 
+- [Many faces of the fixed-point combinator](https://okmij.org/ftp/Computation/fixed-point-combinators.html)
