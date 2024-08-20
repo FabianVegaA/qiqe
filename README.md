@@ -10,13 +10,13 @@ This is a mutated word from the spanish word "Quique", which is an animal that l
 
 The application consists of a code editor, a compiler, a controller and a web server. The controller is a Django application that interacts with the compiler and the web server. The compiler is a Haskell gRPC server that compiles the code to a javascript code. The code editor is a React application that allows to write Qiqe code and execute it in the browser.
 
-![Demo](doc/demo.gif)
+![Demo](qiqe/doc/demo.gif)
 
 ## Documentation
 
-You can find the documentation [here](doc/README.md).
+You can find the documentation [here](qiqe/doc/README.md).
 
-More examples can be found in the [examples](doc/examples/) directory.
+More examples can be found in the [examples](qiqe/doc/examples/) directory.
 
 ## Development
 
