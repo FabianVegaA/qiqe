@@ -1,4 +1,6 @@
 # Qiqe Documentation
+<div id="container">
+<div id="table-of-contents">
 
 ## Table of Contents
 
@@ -16,9 +18,14 @@
     - [Control Flow](#control-flow)
     - [Types](#types)
       - [List](#list)
+    - [Let-in](#let-in)
+      - [Examples](#examples)
   - [Libraries](#libraries)
-  - [Examples](#examples)
+  - [Examples](#examples-1)
   - [Contributing in the design](#contributing-in-the-design)
+
+</div>
+<section id="content">
 
 ## Introduction
 
@@ -144,6 +151,57 @@ let list = [1, 2, 3]
 
 > For now, the nil is a value and it is not implemented as a lambda calculus function.
 
+### Let-in
+
+The `let-in` is a way to define a variable in a block of expressions. The syntax is `let name = expression in body`. The expression is evaluated and the result is assigned to the variable. The variable is available in the body.
+
+```qiqe
+let x = 1 in add x 1
+```
+
+At the moment, let-in only allows the definitions of simple variables and recursive functions, but it will be extended to allow the **mutual recursion**.
+
+#### Examples
+
+1. Muliple definitions:
+
+```qiqe
+let c = let
+  a = 1
+  b = 2
+  in add a b
+print c # 3
+```
+
+2. Recursive functions:
+
+```qiqe
+let sum' = let
+  go = \acc n. if eq n 0
+    then acc
+    else go (add acc n) (sub n 1)
+  in go 0
+
+print sum' 10 # 55
+print sum' 100 # 5050
+```
+For more information about implementation of recursive functions in Qiqe, see [this article](./notes/recursive-functions.md).
+
+1. Mutual recursion:
+
+> **TODO:** This feature is not implemented yet.
+
+```qiqe
+let
+  even = \n. if eq n 0
+    then true
+    else odd (sub n 1)
+  odd = \n. if eq n 0
+    then false
+    else even (sub n 1)
+  in even 10
+```
+
 ## Libraries
 
 - [Base](./../qiqe/library/std.qq): This library contains the basic functions.
@@ -171,3 +229,51 @@ let list = [1, 2, 3]
 ## Contributing in the design
 
 This is a experimental language that born in my free time, and it is not finished yet, but if you want to contribute in the design of the language, you can open an issue or a pull request. You can also contact me at [Twitter](https://twitter.com/fabianmativeal).
+
+</section>
+<style>
+  #container {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+  }
+
+  #table-of-contents {
+    grid-column: 1;
+    padding: 1em;
+    font-size: 0.9em;
+    max-height: 100vh;
+  }
+
+  #table-of-contents h2 {
+    font-size: 1.2em;
+  }
+
+  #table-of-contents ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  #table-of-contents li {
+    margin: 0.5em 0;
+    border-left: 2px solid black;
+    padding-left: 0.5em;
+  }
+
+  #table-of-contents a {
+    text-decoration: none;
+    color: black;
+  }
+
+  #table-of-contents a:hover {
+    color: blue;
+  }
+
+  #content {
+    grid-column: 2;
+    padding: 1em;
+    font-size: 0.9em;
+  }
+
+</style>
+</div>
+
