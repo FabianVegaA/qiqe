@@ -1,0 +1,53 @@
+name:               QiqeCompiler
+version:            0.1.0.0
+
+synopsis: A compiler for the Qiqe programming language.
+description: A compiler for the Qiqe programming language including a lexer, parser, evaluator, compiler, and code generator.
+homepage:           https://github.com/githubuser/Interpreter#readme
+author:             Fabián Vega Alcota
+maintainer:         fabianveal@gmail.com
+copyright:          2023 Fabián Vega Alcota
+category:           Web
+build-type:         Simple
+cabal-version:      >=1.10
+extra-source-files: README.md
+
+executable WebQiqe
+  hs-source-dirs:   src
+  main-is:          WebApi.hs
+  other-modules:
+      Interpreter.Lexer
+    , Interpreter.Parser
+    , Interpreter.Token
+    , Interpreter.Evaluator
+    , Interpreter.Compiler
+    , Interpreter.CodeGen
+  ghc-options:      -Wall
+  default-language: Haskell2010
+  build-depends:
+      base            >=4.12  && <5
+    , text
+    , mtl
+    , hslogger
+    , yesod-core
+    , yesod
+    , aeson
+    , time
+    , directory
+
+executable CLIQiqe
+  hs-source-dirs:   src
+  main-is:          CLI.hs
+  other-modules:
+      Interpreter.Lexer
+    , Interpreter.Parser
+    , Interpreter.Token
+    , Interpreter.Evaluator
+    , Interpreter.Compiler
+  ghc-options:      -Wall
+  default-language: Haskell2010
+  build-depends:
+      base            >=4.12  && <5
+    , text
+    , mtl
+    , hslogger

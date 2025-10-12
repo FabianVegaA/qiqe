@@ -1,0 +1,107 @@
+services:
+  # nginx with development configuration
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy-dev
+    ports:
+      - "8080:80"
+    volumes:
+      - ./service/nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+      - ./service/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./qiqe/library:/app/qiqe/library:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - interpreter
+      - frontend
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+
+  # Frontend service with hot reloading
+  frontend:
+    build:
+      context: ./service/frontend
+      dockerfile: Dockerfile.dev
+    container_name: frontend-service-dev
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./service/frontend/src:/app/src:ro
+      - ./service/frontend/public:/app/public:ro
+      - ./service/frontend/package.json:/app/package.json:ro
+      - ./service/frontend/tsconfig.json:/app/tsconfig.json:ro
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "3001:3000"  # Avoiding conflict with existing service on port 3000
+    networks:
+      - app-network
+    restart: unless-stopped
+    command: npm start
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  interpreter:
+    build:
+      context: ./service/Interpreter
+      dockerfile: Dockerfile
+    container_name: interpreter-service-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./qiqe/library:/app/qiqe/library:ro
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # PostgreSQL database (development configuration)
+  postgres:
+    build:
+      context: ./service/postgres
+      dockerfile: Dockerfile
+    container_name: postgres-db-dev
+    environment:
+      - POSTGRES_DB=qiqe_db_dev
+      - POSTGRES_USER=qiqe_user
+      - POSTGRES_PASSWORD=qiqe_password_dev
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - postgres_logs_dev:/var/log/postgresql
+    ports:
+      - "5433:5432"  # Expose port for development access (avoiding conflict with existing PostgreSQL)
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qiqe_user -d qiqe_db_dev"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+networks:
+  app-network:
+    driver: bridge
+    name: nginx-proxy-network-dev
+
+volumes:
+  nginx_logs:
+    driver: local
+  postgres_data_dev:
+    driver: local
+  postgres_logs_dev:
+    driver: local
+  frontend_node_modules:
+    driver: local
