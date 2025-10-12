@@ -1,0 +1,91 @@
+services:
+  # nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./service/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./service/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./qiqe/library:/app/qiqe/library:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - interpreter
+      - frontend
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./service/frontend
+      dockerfile: Dockerfile
+    container_name: frontend-service
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Interpreter service with JSON REST API
+  interpreter:
+    build:
+      context: ./service/Interpreter
+      dockerfile: Dockerfile
+    container_name: interpreter-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./qiqe/library:/app/qiqe/library:ro
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # PostgreSQL database
+  postgres:
+    build:
+      context: ./service/postgres
+      dockerfile: Dockerfile
+    container_name: postgres-db
+    environment:
+      - POSTGRES_DB=qiqe_db
+      - POSTGRES_USER=qiqe_user
+      - POSTGRES_PASSWORD=qiqe_password
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_logs:/var/log/postgresql
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qiqe_user -d qiqe_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+networks:
+  app-network:
+    driver: bridge
+    name: nginx-proxy-network
+
+volumes:
+  nginx_logs:
+    driver: local
+  postgres_data:
+    driver: local
+  postgres_logs:
+    driver: local
