@@ -8,29 +8,51 @@ This is a mutated word from the spanish word "Quique", which is an animal that l
 
 ## Demo
 
-The application consists of a code editor, a compiler, a controller and a web server. The controller is a Django application that interacts with the compiler and the web server. The compiler is a Haskell gRPC server that compiles the code to a javascript code. The code editor is a React application that allows to write Qiqe code and execute it in the browser.
+The application consists of a code editor, an interpreter service, and a web server. The system uses nginx as a reverse proxy to route requests between the React frontend and the Haskell interpreter service. The interpreter service provides a JSON REST API that compiles and executes Qiqe code. The code editor is a React application that allows users to write Qiqe code and execute it in the browser.
 
 ![Demo](qiqe/doc/demo.gif)
 
+## Architecture
+
+For detailed system architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ## Documentation
 
-You can find the documentation [here](qiqe/doc/README.md).
+You can find the language documentation [here](qiqe/doc/README.md).
 
 More examples can be found in the [examples](qiqe/doc/examples/) directory.
 
 ## Development
 
-For development, you need to have [NixOS](https://nixos.org/) and [Flake](https://nixos.wiki/wiki/Flakes) installed. Then, you can run the following command to start the development server:
+For development, you need to have [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed. Then, you can run the following command to start the development server:
 
 ```sh
-nix run .#dev
+./scripts/start-dev.sh
 ```
 
-This will start a Postgres database and a web server. The web server (React) will automatically reload when you change the code. Other services (Compiler and Controller) will be reloaded when you run the command again.
+This will start the complete development environment including:
+- nginx reverse proxy on port 8080
+- React frontend with hot reloading
+- Haskell interpreter service with JSON REST API
+- PostgreSQL database
 
-## Deployment
+The React frontend will automatically reload when you change the code. To rebuild other services, stop the containers and run the start script again.
 
-> **TODO**: It is not deployed yet.
+## Production Deployment
+
+For production deployment, use the production Docker Compose configuration:
+
+```sh
+./scripts/start-prod.sh
+```
+
+This will start the production environment with:
+- nginx reverse proxy on port 80
+- Optimized React frontend build
+- Haskell interpreter service
+- PostgreSQL database with production configuration
+
+The production setup includes proper logging, health checks, and optimized configurations for better performance.
 
 ## Motivation
 
