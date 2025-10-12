@@ -2,3 +2,7 @@
 
 result/
 result
+
+# IDE and development tools
+.kiro/
+.vscode/
