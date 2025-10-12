@@ -1,6 +1,5 @@
 {
   // Automatically created by phoityne-vscode extension.
-
   "version": "2.0.0",
   "presentation": {
     "reveal": "always",
@@ -28,22 +27,11 @@
       //"command": "stack clean ; stack build"  // for powershell
     },
     {
-      // F8
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      },
-      "type": "shell",
-      "label": "haskell test",
-      //"command": "cabal test"
-      "command": "stack test"
-    },
-    {
       // F6
       "isBackground": true,
       "type": "shell",
       "label": "haskell watch",
-      "command": "stack build --test --no-run-tests --file-watch"
+      "command": "stack build --file-watch"
     },
     {
       "label": "Watch",
