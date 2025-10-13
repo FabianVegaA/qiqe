@@ -35,12 +35,12 @@ type Result = {
 
 type ImportOption = {
   label: string;
-  dir: string;
+  path: string;
 };
 
 const base: ImportOption = {
-  label: "base",
-  dir: "qiqe/library/std.qq",
+  label: "std",
+  path: "std.qq",
 };
 
 type Import = {
@@ -50,26 +50,29 @@ type Import = {
 
 export default function Playground() {
   const theme = useTheme();
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(localStorage.getItem("code") || "");
   const [importeds, setImporteds] = useState([] as Import[]);
 
   const { shell, print, raise, clear } = useShell();
 
-  const defaultImports = [
-    base,
-    {
-      label: "list",
-      dir: "qiqe/library/list.qq",
-    },
-  ];
+  useEffect(() => {
+    localStorage.setItem("code", code);
+  }, [code]);
+
+  const defaultImports = [base];
 
   useEffect(() => {
     const fetchImports = async () => {
       const compiledBase = await importLibs(
-        defaultImports.map((lib) => lib.dir)
+        defaultImports.map((lib) => lib.path),
       );
       if (!compiledBase) return;
-      setImporteds([{ label: base.label, target: compiledBase.join("\n") }]);
+      setImporteds(
+        compiledBase.map((result) => ({
+          label: result.label,
+          target: result.target,
+        })),
+      );
     };
     fetchImports();
   }, []);
@@ -79,7 +82,10 @@ export default function Playground() {
     if (!compiled) return;
     setImporteds([
       ...importeds,
-      ...libs.map((lib) => ({ label: lib, target: compiled.join("\n") })),
+      ...compiled.map((result) => ({
+        label: result.label,
+        target: result.target,
+      })),
     ]);
   };
 
@@ -99,7 +105,7 @@ export default function Playground() {
           print,
           raise,
           code: data.result,
-          imports: importeds.map((i) => i.target),
+          imports: importeds.map((i) => i.label),
         });
       })
       .catch((reason) => raise(reason, 1));
@@ -142,7 +148,7 @@ export default function Playground() {
             defaultValue={[base]}
             onChange={(_, value) => {
               if (!value) return;
-              handleImport(value.map((v) => v.dir));
+              handleImport(value.map((v) => v.path));
             }}
             renderInput={(params) => (
               <TextField {...params} label="Import" placeholder="Import" />
@@ -174,6 +180,7 @@ export default function Playground() {
               theme={
                 theme.palette.mode === "dark" ? "tomorrow_night" : "tomorrow"
               }
+              value={code}
               onChange={setCode}
               name="code-editor"
               height="100vh"
@@ -241,7 +248,7 @@ export default function Playground() {
                     {output}
                   </Typography>
                 </ListItem>
-              )
+              ),
             )}
           </List>
         </Stack>

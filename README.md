@@ -31,12 +31,16 @@ For development, you need to have [Docker](https://www.docker.com/) and [Docker 
 ```
 
 This will start the complete development environment including:
-- nginx reverse proxy on port 8080
+- nginx reverse proxy on port 80
 - React frontend with hot reloading
 - Haskell interpreter service with JSON REST API
 - PostgreSQL database
 
 The React frontend will automatically reload when you change the code. To rebuild other services, stop the containers and run the start script again.
+
+### Troubleshooting
+
+If you encounter WebSocket connection issues (especially in Firefox), see the [WebSocket Troubleshooting Guide](WEBSOCKET_TROUBLESHOOTING.md) for detailed solutions and setup instructions.
 
 ## Production Deployment
 

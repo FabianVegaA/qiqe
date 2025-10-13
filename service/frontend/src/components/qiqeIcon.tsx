@@ -2,10 +2,7 @@ import MuiSvgIcon from "@mui/material/SvgIcon";
 
 export default function QiqeIcon({ ...props }) {
   return (
-    <MuiSvgIcon 
-    
-        {...props}
-    >
+    <MuiSvgIcon {...props}>
       <path
         // style="fill:#05232E;"
         d="M104.247,512c48.156,0,88.037-35.42,95.017-81.629l-42.436-44.466l-52.58,37.052L104.247,512z"

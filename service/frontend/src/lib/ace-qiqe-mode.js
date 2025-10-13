@@ -20,7 +20,7 @@ ace.define(
           "support.function": supportFunctions,
         },
         "identifier",
-        true
+        true,
       );
 
       this.$rules = {
@@ -75,7 +75,7 @@ ace.define(
     oop.inherits(QiqeHighlightRules, TextHighlightRules);
 
     exports.QiqeHighlightRules = QiqeHighlightRules;
-  }
+  },
 );
 ace.define(
   "ace/mode/qiqe",
@@ -107,5 +107,5 @@ ace.define(
     }).call(Mode.prototype);
 
     exports.Mode = Mode;
-  }
+  },
 );

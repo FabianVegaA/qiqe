@@ -1,6 +1,23 @@
-# Getting Started with Create React App
+# QIQE Frontend Service
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Development Environment
+
+This frontend service runs in a Docker container behind an nginx proxy. WebSocket connections for hot reloading are configured to work through the proxy setup.
+
+### WebSocket Configuration
+
+The development server is configured with the following environment variables for proper WebSocket functionality:
+
+- `WDS_SOCKET_HOST=localhost` - Points WebSocket connections to the proxy host
+- `WDS_SOCKET_PORT=80` - Uses the proxy port instead of direct container port
+- `WDS_SOCKET_PATH=/ws` - WebSocket endpoint path
+- `DANGEROUSLY_DISABLE_HOST_CHECK=true` - Allows proxy connections in development
+
+### Troubleshooting WebSocket Issues
+
+If you encounter WebSocket connection problems (especially in Firefox), see the [WebSocket Troubleshooting Guide](../../WEBSOCKET_TROUBLESHOOTING.md) for detailed solutions.
 
 ## Available Scripts
 
