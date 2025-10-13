@@ -12,10 +12,10 @@ export function useShell(): {
   return {
     shell,
     print: async (output: string) => {
-      setShell([[0, output], ...shell]);
+      setShell((prevShell) => [[0, output], ...prevShell]);
     },
     raise: async (output: string, statusCode: Exclude<StatusCode, 0>) => {
-      setShell([[statusCode, output], ...shell]);
+      setShell((prevShell) => [[statusCode, output], ...prevShell]);
     },
     clear: () => {
       setShell([]);
