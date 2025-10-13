@@ -81,10 +81,10 @@ let right_align = \s n c. concat s (repeat_str c n)
 let right_align' = \s n. right_align s n " "
 
 # Logging
-let debug = show >> (\x. x |> eval "(x)=>{println__qq('DEBUG: ' + x);return x}")
-let info  = show >> (\x. x |> eval "(x)=>{println__qq('INFO: '  + x);return x}")
-let warn  = show >> (\x. x |> eval "(x)=>{println__qq('WARN: '  + x);return x}")
-let error = show >> (\x. x |> eval "(x)=>{println__qq('ERROR: ' + x);return x}")
+let debug = show >> (\x. x |> eval "(x)=>{console.debug('DEBUG: ' + x);return x}")
+let info  = show >> (\x. x |> eval "(x)=>{console.info('INFO: '  + x);return x}")
+let warn  = show >> (\x. x |> eval "(x)=>{console.warn('WARN: '  + x);return x}")
+let error = show >> (\x. x |> eval "(x)=>{console.error('ERROR: ' + x);return x}")
 
 # List
 
