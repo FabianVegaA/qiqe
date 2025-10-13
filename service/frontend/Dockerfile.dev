@@ -16,6 +16,12 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Set WebSocket environment variable defaults for development
+ENV WDS_SOCKET_HOST=localhost
+ENV WDS_SOCKET_PORT=80
+ENV WDS_SOCKET_PATH=/ws
+ENV DANGEROUSLY_DISABLE_HOST_CHECK=true
+
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001

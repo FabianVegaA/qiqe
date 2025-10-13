@@ -1,20 +1,12 @@
-FROM debian:bookworm-slim AS builder-stack
-
-# Install system dependencies for HTTP server and protobuf
-RUN apt-get update && apt-get install -y \
-    && apt-get install -y \
-    curl
+FROM haskell:9.10.2-slim-bullseye AS builder
 
 WORKDIR /opt/build
 
 COPY . /opt/build
 
-RUN curl -sSL https://get.haskellstack.org/ | sh \
-    && stack install
-
-FROM builder-stack AS builder
-
-RUN stack build --system-ghc \
+RUN set -eux \
+    && apt-get update && apt-get install -y \
+    && stack build --system-ghc \
     && mkdir -p /app/bin \
     && cp $(stack path --local-install-root)/bin/WebQiqe /app/bin/WebQiqe
 
@@ -24,7 +16,7 @@ FROM debian:bookworm-slim AS production
 RUN mkdir -p /opt/Interpreter
 
 # Install runtime dependencies
-RUN apt-get update && apt-get install -y 
+RUN apt-get update && apt-get install -y
 
 # Create app directory and user
 WORKDIR /app
